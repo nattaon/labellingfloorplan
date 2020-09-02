@@ -76,9 +76,12 @@ public:
         zoom_SpinBox = new QDoubleSpinBox(centralWidget);
         zoom_SpinBox->setObjectName(QStringLiteral("zoom_SpinBox"));
         zoom_SpinBox->setGeometry(QRect(70, 270, 69, 26));
+        zoom_SpinBox->setDecimals(1);
+        zoom_SpinBox->setMinimum(1);
+        zoom_SpinBox->setMaximum(10);
         imageLabel = new QLabel(centralWidget);
         imageLabel->setObjectName(QStringLiteral("imageLabel"));
-        imageLabel->setGeometry(QRect(10, 490, 141, 41));
+        imageLabel->setGeometry(QRect(10, 400, 141, 41));
         scrollArea = new QScrollArea(centralWidget);
         scrollArea->setObjectName(QStringLiteral("scrollArea"));
         scrollArea->setGeometry(QRect(190, 30, 500, 500));
@@ -92,7 +95,7 @@ public:
         drawline_pushButton->setGeometry(QRect(20, 300, 89, 25));
         mousepos_label = new QLabel(centralWidget);
         mousepos_label->setObjectName(QStringLiteral("mousepos_label"));
-        mousepos_label->setGeometry(QRect(10, 520, 101, 17));
+        mousepos_label->setGeometry(QRect(10, 440, 101, 17));
         label_2 = new QLabel(centralWidget);
         label_2->setObjectName(QStringLiteral("label_2"));
         label_2->setGeometry(QRect(20, 255, 67, 17));

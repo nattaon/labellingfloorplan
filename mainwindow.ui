@@ -74,12 +74,21 @@
       <height>26</height>
      </rect>
     </property>
+    <property name="decimals">
+     <number>1</number>
+    </property>
+    <property name="minimum">
+     <double>1.000000000000000</double>
+    </property>
+    <property name="maximum">
+     <double>10.000000000000000</double>
+    </property>
    </widget>
    <widget class="QLabel" name="imageLabel">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>490</y>
+      <y>400</y>
       <width>141</width>
       <height>41</height>
      </rect>
@@ -128,7 +137,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>520</y>
+      <y>440</y>
       <width>101</width>
       <height>17</height>
      </rect>

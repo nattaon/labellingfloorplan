@@ -13,7 +13,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->zoom_SpinBox, SIGNAL(valueChanged(double)), this, SLOT(setZoomFactor(double)));
     //connect(maskTypeComboBox, SIGNAL(currentIndexChanged(int)), pixmapWidget, SLOT(setMaskEditColor(int)));
     //connect(pixmapWidget, SIGNAL(zoomFactorChanged(double)), zoomSpinBox, SLOT(setValue(double)));
-    //connect(scrollArea, SIGNAL(wheelTurned(QWheelEvent*)), this, SLOT(onWheelTurnedInScrollArea(QWheelEvent *)));
+
 
     //connect(ui->drawline_pushButton, SIGNAL(clicked()), this, SLOT(on_drawline_pushButton_clicked()));
 
@@ -38,24 +38,22 @@ MainWindow::MainWindow(QWidget *parent) :
 
     drawlinemode=false;
     dstate=none;
-
+    zoomFactor=1.0;
+    //ui->zoom_SpinBox->setValue(1.0);
+    connect(ui->scrollArea->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(on_scroll_v(int)));
+    connect(ui->scrollArea->horizontalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(on_scroll_h(int)));
 
 }
+
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
-    //if (event->type() == QEvent::MouseMove)
-    //{
-     //   QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
-     //   QString mouseposition = QString("(%1,%2)").arg(mouseEvent->pos().x()).arg(mouseEvent->pos().y());
 
-     //  ui->mousepos_label->setText(mouseposition);
-    //}
     if( (dynamic_cast<QMouseEvent*>(event)) && (obj==ui->imageLabel))
     {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
         int mousex=mouseEvent->pos().x();
         int mousey=mouseEvent->pos().y();
-        //QString mouseposition = QString("(%1,%2)").arg(mousex).arg(mousey);
+
 
         if(drawlinemode)
         {
@@ -65,6 +63,11 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
                 case start: ui->mousepos_label->setText("start");  break;
                 case end : ui->mousepos_label->setText("end");  TempDrawLine(mousex,mousey); break;
             }
+        }
+        else
+        {
+            QString mouseposition = QString("(%1,%2)").arg(mousex).arg(mousey);
+            ui->mousepos_label->setText(mouseposition);
         }
 
 
@@ -109,7 +112,7 @@ void MainWindow::TempDrawLine(int mousex, int mousey)
     QPen myPen(Qt::red, 1, Qt::SolidLine);
     painter.setPen(myPen);
 
-    painter.drawLine(x1, y1, mousex, mousey);
+    painter.drawLine(x1/zoomFactor, y1/zoomFactor, mousex/zoomFactor, mousey/zoomFactor);
     qDebug() << "draw from " << x1 << ","  << y1 << " to " << mousex << "," << mousey;
 
 
@@ -142,7 +145,7 @@ void MainWindow::SetEndLine(int mousex, int mousey)
     QPainter painter(&currentimage);
     QPen myPen(Qt::red, 1, Qt::SolidLine);
     painter.setPen(myPen);
-    painter.drawLine(x1, y1, x2, y2);
+    painter.drawLine(x1/zoomFactor, y1/zoomFactor, x2/zoomFactor, y2/zoomFactor);
     ui->imageLabel->setPixmap(currentimage);
 
     ui->x1y1_label->setText("0,0");
@@ -217,10 +220,61 @@ void MainWindow::loadImage(const QString &fileName)
 void MainWindow::setZoomFactor(double f)
 {
     zoomFactor = f;
+    qDebug() << "\n zoomFactor = " << zoomFactor;
+
     if(f>=1.0)
         ui->imageLabel->resize(zoomFactor * ui->imageLabel->pixmap()->size());
+    print_scrollbar_value();
+
 }
 
+
+void MainWindow::print_scrollbar_value()
+{
+    double hValue = 0, hMin = 0, hMax = 0, hPageStep = 0, hLength = 0;
+    double vValue = 0, vMin = 0, vMax = 0, vPageStep = 0, vLength = 0;
+
+    if (ui->scrollArea) {
+        QScrollBar *scrollBar;
+        scrollBar = ui->scrollArea->horizontalScrollBar();
+        if (scrollBar) {
+            hValue = scrollBar->value();
+            hMin = scrollBar->minimum();
+            hMax = scrollBar->maximum();
+            hPageStep = scrollBar->pageStep();
+            hLength = hMax - hMin + hPageStep;
+            qDebug() << "hValue = " << hValue << ", "
+                     << "hMin = " << hMin << ", "
+                     << "hMax = " << hMax << ", "
+                     << "hPageStep = " << hPageStep << ", "
+                     << "hLength = " << hLength ;
+        }
+        scrollBar = ui->scrollArea->verticalScrollBar();
+        if (scrollBar) {
+            vValue = scrollBar->value();
+            vMin = scrollBar->minimum();
+            vMax = scrollBar->maximum();
+            vPageStep = scrollBar->pageStep();
+            vLength = vMax - vMin + vPageStep;
+            qDebug() << "vValue = " << vValue << ", "
+                     << "vMin = " << vMin << ", "
+                     << "vMax = " << vMax << ", "
+                     << "vPageStep = " << vPageStep << ", "
+                     << "vLength = " << vLength ;
+        }
+    }
+
+}
+void MainWindow::on_scroll_v(int value)
+{
+    qDebug() << "on_scroll vertical " << value;
+    print_scrollbar_value();
+}
+void MainWindow::on_scroll_h(int value)
+{
+    qDebug() << "on_scroll horizontal " << value;
+    print_scrollbar_value();
+}
 void MainWindow::on_drawline_pushButton_clicked()
 {
     qDebug() << "drawlinemode " << drawlinemode;

@@ -37,6 +37,9 @@ private:
     void SetEndLine(int mousex, int mousey);
     void SetStartLine(int mousex, int mousey);
     void TempDrawLine(int mousex, int mousey);
+    void print_scrollbar_value();
+
+    bool isconnectScrollbarEvent;
     int x1,y1,x2,y2;
     enum drawlinestate { none, start, end };
     drawlinestate dstate = none;
@@ -46,8 +49,10 @@ private slots:
     void on_drawline_pushButton_clicked();
     void on_openfolder_pushButton_clicked();
     void PressedTreeItem(QTreeWidgetItem *item, int col);
-    void setZoomFactor(double f);
 
+    void setZoomFactor(double f);
+    void on_scroll_h(int value);
+    void on_scroll_v(int value);
 };
 
 #endif // MAINWINDOW_H
