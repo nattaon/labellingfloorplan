@@ -35,6 +35,12 @@ class Ui_MainWindow
 public:
     QAction *actionSelect_folder;
     QAction *actionGenerate_label;
+    QAction *actionZoom_in;
+    QAction *actionZoom_out;
+    QAction *actionNext_image;
+    QAction *actionPrev_image;
+    QAction *actionSee_shortcut;
+    QAction *actionDelete_line;
     QWidget *centralWidget;
     QTreeWidget *files_treeWidget;
     QPushButton *openfolder_pushButton;
@@ -57,6 +63,7 @@ public:
     QMenuBar *menuBar;
     QMenu *menuFile;
     QMenu *menuLabel;
+    QMenu *menuShortcut;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
 
@@ -69,6 +76,18 @@ public:
         actionSelect_folder->setObjectName(QStringLiteral("actionSelect_folder"));
         actionGenerate_label = new QAction(MainWindow);
         actionGenerate_label->setObjectName(QStringLiteral("actionGenerate_label"));
+        actionZoom_in = new QAction(MainWindow);
+        actionZoom_in->setObjectName(QStringLiteral("actionZoom_in"));
+        actionZoom_out = new QAction(MainWindow);
+        actionZoom_out->setObjectName(QStringLiteral("actionZoom_out"));
+        actionNext_image = new QAction(MainWindow);
+        actionNext_image->setObjectName(QStringLiteral("actionNext_image"));
+        actionPrev_image = new QAction(MainWindow);
+        actionPrev_image->setObjectName(QStringLiteral("actionPrev_image"));
+        actionSee_shortcut = new QAction(MainWindow);
+        actionSee_shortcut->setObjectName(QStringLiteral("actionSee_shortcut"));
+        actionDelete_line = new QAction(MainWindow);
+        actionDelete_line->setObjectName(QStringLiteral("actionDelete_line"));
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         files_treeWidget = new QTreeWidget(centralWidget);
@@ -130,7 +149,7 @@ public:
         lines_treeWidget->setGeometry(QRect(10, 350, 201, 192));
         lines_treeWidget->setIndentation(20);
         lines_treeWidget->setItemsExpandable(false);
-        lines_treeWidget->setHeaderHidden(false);
+        lines_treeWidget->setHeaderHidden(true);
         lines_treeWidget->setExpandsOnDoubleClick(false);
         lines_treeWidget->header()->setVisible(false);
         lines_treeWidget->header()->setCascadingSectionResizes(false);
@@ -148,6 +167,8 @@ public:
         menuFile->setObjectName(QStringLiteral("menuFile"));
         menuLabel = new QMenu(menuBar);
         menuLabel->setObjectName(QStringLiteral("menuLabel"));
+        menuShortcut = new QMenu(menuBar);
+        menuShortcut->setObjectName(QStringLiteral("menuShortcut"));
         MainWindow->setMenuBar(menuBar);
         mainToolBar = new QToolBar(MainWindow);
         mainToolBar->setObjectName(QStringLiteral("mainToolBar"));
@@ -158,8 +179,15 @@ public:
 
         menuBar->addAction(menuFile->menuAction());
         menuBar->addAction(menuLabel->menuAction());
+        menuBar->addAction(menuShortcut->menuAction());
         menuFile->addAction(actionSelect_folder);
+        menuFile->addAction(actionZoom_in);
+        menuFile->addAction(actionZoom_out);
         menuLabel->addAction(actionGenerate_label);
+        menuLabel->addAction(actionNext_image);
+        menuLabel->addAction(actionPrev_image);
+        menuLabel->addAction(actionDelete_line);
+        menuShortcut->addAction(actionSee_shortcut);
 
         retranslateUi(MainWindow);
 
@@ -170,7 +198,34 @@ public:
     {
         MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", Q_NULLPTR));
         actionSelect_folder->setText(QApplication::translate("MainWindow", "Select folder", Q_NULLPTR));
+#ifndef QT_NO_SHORTCUT
+        actionSelect_folder->setShortcut(QApplication::translate("MainWindow", "Ctrl+O", Q_NULLPTR));
+#endif // QT_NO_SHORTCUT
         actionGenerate_label->setText(QApplication::translate("MainWindow", "Generate label", Q_NULLPTR));
+#ifndef QT_NO_SHORTCUT
+        actionGenerate_label->setShortcut(QApplication::translate("MainWindow", "Ctrl+G", Q_NULLPTR));
+#endif // QT_NO_SHORTCUT
+        actionZoom_in->setText(QApplication::translate("MainWindow", "Zoom in", Q_NULLPTR));
+#ifndef QT_NO_SHORTCUT
+        actionZoom_in->setShortcut(QApplication::translate("MainWindow", "+", Q_NULLPTR));
+#endif // QT_NO_SHORTCUT
+        actionZoom_out->setText(QApplication::translate("MainWindow", "Zoom out", Q_NULLPTR));
+#ifndef QT_NO_SHORTCUT
+        actionZoom_out->setShortcut(QApplication::translate("MainWindow", "-", Q_NULLPTR));
+#endif // QT_NO_SHORTCUT
+        actionNext_image->setText(QApplication::translate("MainWindow", "Next image", Q_NULLPTR));
+#ifndef QT_NO_SHORTCUT
+        actionNext_image->setShortcut(QApplication::translate("MainWindow", ">", Q_NULLPTR));
+#endif // QT_NO_SHORTCUT
+        actionPrev_image->setText(QApplication::translate("MainWindow", "Prev image", Q_NULLPTR));
+#ifndef QT_NO_SHORTCUT
+        actionPrev_image->setShortcut(QApplication::translate("MainWindow", "<", Q_NULLPTR));
+#endif // QT_NO_SHORTCUT
+        actionSee_shortcut->setText(QApplication::translate("MainWindow", "See shortcut", Q_NULLPTR));
+        actionDelete_line->setText(QApplication::translate("MainWindow", "Delete line", Q_NULLPTR));
+#ifndef QT_NO_SHORTCUT
+        actionDelete_line->setShortcut(QApplication::translate("MainWindow", "Del", Q_NULLPTR));
+#endif // QT_NO_SHORTCUT
         QTreeWidgetItem *___qtreewidgetitem = files_treeWidget->headerItem();
         ___qtreewidgetitem->setText(0, QApplication::translate("MainWindow", "Files", Q_NULLPTR));
         openfolder_pushButton->setText(QApplication::translate("MainWindow", "Open folder", Q_NULLPTR));
@@ -192,6 +247,7 @@ public:
         deleteline_pushButton->setText(QApplication::translate("MainWindow", "delete line", Q_NULLPTR));
         menuFile->setTitle(QApplication::translate("MainWindow", "File", Q_NULLPTR));
         menuLabel->setTitle(QApplication::translate("MainWindow", "Label", Q_NULLPTR));
+        menuShortcut->setTitle(QApplication::translate("MainWindow", "Shortcut", Q_NULLPTR));
     } // retranslateUi
 
 };

@@ -38,6 +38,8 @@ private:
     void ListImgInFolder();
     void ShowImage(const QString &fileName);
     bool eventFilter(QObject *obj, QEvent *event);
+    void resizeEvent(QResizeEvent *e);
+
     void SetEndLine(int mousex, int mousey);
     void SetStartLine(int mousex, int mousey);
     void TempDrawLine(int mousex, int mousey);
@@ -65,6 +67,10 @@ private slots:
     void Button_openfolder_clicked();
     void Button_selectfolder_clicked();
     void Button_generatelabel_clicked();
+    void Button_zoomin_clicked();
+    void Button_zoomout_clicked();
+    void Button_nextimg_clicked();
+    void Button_previmg_clicked();
 
     void SelectImgFile(QTreeWidgetItem *item, int col);
     void SelectLine(QTreeWidgetItem *item, int col);

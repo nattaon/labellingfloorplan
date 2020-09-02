@@ -243,7 +243,7 @@
      <bool>false</bool>
     </property>
     <property name="headerHidden">
-     <bool>false</bool>
+     <bool>true</bool>
     </property>
     <property name="expandsOnDoubleClick">
      <bool>false</bool>
@@ -312,15 +312,27 @@
      <string>File</string>
     </property>
     <addaction name="actionSelect_folder"/>
+    <addaction name="actionZoom_in"/>
+    <addaction name="actionZoom_out"/>
    </widget>
    <widget class="QMenu" name="menuLabel">
     <property name="title">
      <string>Label</string>
     </property>
     <addaction name="actionGenerate_label"/>
+    <addaction name="actionNext_image"/>
+    <addaction name="actionPrev_image"/>
+    <addaction name="actionDelete_line"/>
+   </widget>
+   <widget class="QMenu" name="menuShortcut">
+    <property name="title">
+     <string>Shortcut</string>
+    </property>
+    <addaction name="actionSee_shortcut"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuLabel"/>
+   <addaction name="menuShortcut"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -335,10 +347,61 @@
    <property name="text">
     <string>Select folder</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
   </action>
   <action name="actionGenerate_label">
    <property name="text">
     <string>Generate label</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+G</string>
+   </property>
+  </action>
+  <action name="actionZoom_in">
+   <property name="text">
+    <string>Zoom in</string>
+   </property>
+   <property name="shortcut">
+    <string>+</string>
+   </property>
+  </action>
+  <action name="actionZoom_out">
+   <property name="text">
+    <string>Zoom out</string>
+   </property>
+   <property name="shortcut">
+    <string>-</string>
+   </property>
+  </action>
+  <action name="actionNext_image">
+   <property name="text">
+    <string>Next image</string>
+   </property>
+   <property name="shortcut">
+    <string>&gt;</string>
+   </property>
+  </action>
+  <action name="actionPrev_image">
+   <property name="text">
+    <string>Prev image</string>
+   </property>
+   <property name="shortcut">
+    <string>&lt;</string>
+   </property>
+  </action>
+  <action name="actionSee_shortcut">
+   <property name="text">
+    <string>See shortcut</string>
+   </property>
+  </action>
+  <action name="actionDelete_line">
+   <property name="text">
+    <string>Delete line</string>
+   </property>
+   <property name="shortcut">
+    <string>Del</string>
    </property>
   </action>
  </widget>

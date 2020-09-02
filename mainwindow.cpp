@@ -6,8 +6,15 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+
     connect(ui->actionSelect_folder, SIGNAL(triggered()), this, SLOT(Button_selectfolder_clicked()));
     connect(ui->actionGenerate_label, SIGNAL(triggered()), this, SLOT(Button_generatelabel_clicked()));
+    connect(ui->actionZoom_in, SIGNAL(triggered()), this, SLOT(Button_zoomin_clicked()));
+    connect(ui->actionZoom_out, SIGNAL(triggered()), this, SLOT(Button_zoomout_clicked()));
+    connect(ui->actionNext_image, SIGNAL(triggered()), this, SLOT(Button_nextimg_clicked()));
+    connect(ui->actionPrev_image, SIGNAL(triggered()), this, SLOT(Button_previmg_clicked()));
+    connect(ui->actionDelete_line,SIGNAL(triggered()), this, SLOT(Button_deleteline_clicked()));
 
     connect(ui->openfolder_pushButton, SIGNAL(clicked()), this, SLOT(Button_openfolder_clicked()));
     connect(ui->deleteline_pushButton, SIGNAL(clicked()), this, SLOT(Button_deleteline_clicked()));
@@ -30,7 +37,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->scrollArea->setBackgroundRole(QPalette::Dark);
     ui->scrollArea->setWidget(ui->imageLabel);
     ui->scrollArea->setVisible(true);
-    ui->scrollArea->setWidgetResizable(false);
+    ui->scrollArea->setWidgetResizable(false); //  if set true the image will very small, and no scrollbar
     //setCentralWidget(ui->scrollArea);
 
     //ui->imageLabel->installEventFilter(this);
@@ -51,9 +58,22 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->lines_treeWidget->header()->resizeSection(2, 45);
 
     //txtfile = new ReadWriteFile();
+    QPoint p = ui->scrollArea->geometry().topLeft();
+    qDebug() << "ui->scrollArea topLeft " << p;
 
 }
-
+void MainWindow::resizeEvent(QResizeEvent *e)
+{
+    //undoView->move(e->size().width(),undoView->y());
+    qDebug() << "resize window " << e->size().width() << "*" << e->size().height();
+    //
+    QPoint p = ui->scrollArea->geometry().topLeft();
+    int newwidth = e->size().width()-p.x()-30;
+    int newheight = e->size().height()-p.y()-70;
+    qDebug() << "new scollarea size " << newwidth << "*" << newheight;
+    //ui->scrollArea->adjustSize();
+    ui->scrollArea->resize(newwidth,newheight);
+}
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
 
@@ -211,14 +231,39 @@ void MainWindow::ListImgInFolder()
         currentFile->setText(0, images[i]);
     }
 
+    currentSelectingImageIndex=-1;
+    Button_nextimg_clicked();
 
 }
-
-
+void MainWindow::Button_nextimg_clicked()
+{
+    int totalimgs = ui->files_treeWidget->topLevelItemCount();
+    int toSelectImageIndex = currentSelectingImageIndex+1;
+    qDebug() << "toSelectImageIndex " << toSelectImageIndex <<"/"<<totalimgs;
+    if(toSelectImageIndex >=0 && toSelectImageIndex < totalimgs)
+    {
+        QTreeWidgetItem *item = ui->files_treeWidget->topLevelItem(toSelectImageIndex);
+        ui->files_treeWidget->setCurrentItem(item);
+        SelectImgFile(item,0);
+    }
+}
+void MainWindow::Button_previmg_clicked()
+{
+    int totalimgs = ui->files_treeWidget->topLevelItemCount();
+    int toSelectImageIndex = currentSelectingImageIndex-1;
+    qDebug() << "toSelectImageIndex " << toSelectImageIndex <<"/"<<totalimgs;
+    if(toSelectImageIndex >=0 && toSelectImageIndex < totalimgs)
+    {
+        QTreeWidgetItem *item = ui->files_treeWidget->topLevelItem(toSelectImageIndex);
+        ui->files_treeWidget->setCurrentItem(item);
+        SelectImgFile(item,0);
+    }
+}
 void MainWindow::SelectImgFile(QTreeWidgetItem *item, int col)
 {
     if(currentSelectingImageIndex == ui->files_treeWidget->currentIndex().row()) //select the current one (same one)
     {
+
         return;
     }
     //save current image label ?
@@ -427,7 +472,24 @@ void MainWindow::ShowImage(const QString &fileName)
     currentSelectingLineIndex=-1;
 
 }
-
+void MainWindow::Button_zoomin_clicked()
+{
+    double newzoom = ui->zoom_SpinBox->value()+1.0;
+    if (newzoom <= ui->zoom_SpinBox->maximum() && newzoom >= ui->zoom_SpinBox->minimum())
+    {
+        ui->zoom_SpinBox->setValue(newzoom);
+        ZoomImage(newzoom);
+    }
+}
+void MainWindow::Button_zoomout_clicked()
+{
+    double newzoom = ui->zoom_SpinBox->value()-1.0;
+    if (newzoom <= ui->zoom_SpinBox->maximum() && newzoom >= ui->zoom_SpinBox->minimum())
+    {
+        ui->zoom_SpinBox->setValue(newzoom);
+        ZoomImage(newzoom);
+    }
+}
 void MainWindow::ZoomImage(double f)
 {
     zoomFactor = f;
