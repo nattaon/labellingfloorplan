@@ -19,8 +19,8 @@
      <rect>
       <x>10</x>
       <y>30</y>
-      <width>171</width>
-      <height>221</height>
+      <width>191</width>
+      <height>181</height>
      </rect>
     </property>
     <column>
@@ -55,8 +55,8 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>275</y>
+      <x>10</x>
+      <y>235</y>
       <width>41</width>
       <height>17</height>
      </rect>
@@ -68,9 +68,9 @@
    <widget class="QDoubleSpinBox" name="zoom_SpinBox">
     <property name="geometry">
      <rect>
-      <x>70</x>
-      <y>270</y>
-      <width>69</width>
+      <x>60</x>
+      <y>230</y>
+      <width>51</width>
       <height>26</height>
      </rect>
     </property>
@@ -87,10 +87,10 @@
    <widget class="QLabel" name="imageLabel">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>400</y>
-      <width>141</width>
-      <height>41</height>
+      <x>400</x>
+      <y>0</y>
+      <width>51</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
@@ -100,7 +100,7 @@
    <widget class="QScrollArea" name="scrollArea">
     <property name="geometry">
      <rect>
-      <x>190</x>
+      <x>210</x>
       <y>30</y>
       <width>500</width>
       <height>500</height>
@@ -120,26 +120,13 @@
      </property>
     </widget>
    </widget>
-   <widget class="QPushButton" name="drawline_pushButton">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>300</y>
-      <width>89</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>drawline</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="mousepos_label">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>440</y>
-      <width>101</width>
-      <height>17</height>
+      <y>320</y>
+      <width>61</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
@@ -149,8 +136,8 @@
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>255</y>
+      <x>10</x>
+      <y>210</y>
       <width>67</width>
       <height>17</height>
      </rect>
@@ -162,8 +149,8 @@
    <widget class="QLabel" name="imgsize_label">
     <property name="geometry">
      <rect>
-      <x>90</x>
-      <y>255</y>
+      <x>80</x>
+      <y>210</y>
       <width>91</width>
       <height>17</height>
      </rect>
@@ -176,7 +163,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>360</y>
+      <y>280</y>
       <width>67</width>
       <height>17</height>
      </rect>
@@ -189,7 +176,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>380</y>
+      <y>300</y>
       <width>67</width>
       <height>17</height>
      </rect>
@@ -202,7 +189,7 @@
     <property name="geometry">
      <rect>
       <x>70</x>
-      <y>360</y>
+      <y>280</y>
       <width>67</width>
       <height>17</height>
      </rect>
@@ -215,7 +202,7 @@
     <property name="geometry">
      <rect>
       <x>70</x>
-      <y>380</y>
+      <y>300</y>
       <width>67</width>
       <height>17</height>
      </rect>
@@ -227,8 +214,8 @@
    <widget class="QCheckBox" name="alignedxy_checkBox">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>330</y>
+      <x>10</x>
+      <y>250</y>
       <width>141</width>
       <height>23</height>
      </rect>
@@ -238,6 +225,76 @@
     </property>
     <property name="checked">
      <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QTreeWidget" name="lines_treeWidget">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>350</y>
+      <width>191</width>
+      <height>192</height>
+     </rect>
+    </property>
+    <property name="indentation">
+     <number>20</number>
+    </property>
+    <property name="itemsExpandable">
+     <bool>false</bool>
+    </property>
+    <property name="headerHidden">
+     <bool>false</bool>
+    </property>
+    <property name="expandsOnDoubleClick">
+     <bool>false</bool>
+    </property>
+    <attribute name="headerVisible">
+     <bool>true</bool>
+    </attribute>
+    <attribute name="headerCascadingSectionResizes">
+     <bool>false</bool>
+    </attribute>
+    <attribute name="headerDefaultSectionSize">
+     <number>20</number>
+    </attribute>
+    <attribute name="headerMinimumSectionSize">
+     <number>20</number>
+    </attribute>
+    <attribute name="headerStretchLastSection">
+     <bool>true</bool>
+    </attribute>
+    <column>
+     <property name="text">
+      <string>x1</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>y1</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>x2</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>y2</string>
+     </property>
+    </column>
+   </widget>
+   <widget class="QPushButton" name="deleteline_pushButton">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>320</y>
+      <width>71</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>delete</string>
     </property>
    </widget>
   </widget>
