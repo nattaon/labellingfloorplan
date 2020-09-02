@@ -7,6 +7,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     connect(ui->actionSelect_folder, SIGNAL(triggered()), this, SLOT(Button_selectfolder_clicked()));
+    connect(ui->actionGenerate_label, SIGNAL(triggered()), this, SLOT(Button_generatelabel_clicked()));
+
     connect(ui->openfolder_pushButton, SIGNAL(clicked()), this, SLOT(Button_openfolder_clicked()));
     connect(ui->deleteline_pushButton, SIGNAL(clicked()), this, SLOT(Button_deleteline_clicked()));
 
@@ -485,7 +487,100 @@ void MainWindow::on_scroll_h(int value)
     print_scrollbar_value();
 }
 
+void MainWindow::Button_generatelabel_clicked()
+{
+    //QDir dir;
+    //dir.mkpath();
 
+    QString path=currentlyOpenedDir + QDir::separator() + "label";
+    QDir dir(path);
+    if (!dir.exists())
+    {
+      dir.mkpath(path);
+    }
+
+
+    int totalfiles = ui->files_treeWidget->topLevelItemCount();
+    qDebug() << "totalfiles " << totalfiles;
+
+    if(totalfiles==0)
+    {
+        return;
+    }
+    for (int i = 0; i < totalfiles; ++i) // run through each image file show in the widget
+    {
+        QTreeWidgetItem *item = ui->files_treeWidget->topLevelItem(i);
+        QString imagename = currentlyOpenedDir + QDir::separator() + item->text(0);
+        QPixmap refimg(imagename);
+
+        //create image
+        QPixmap pixmap( refimg.width(), refimg.height() );
+        pixmap.fill( Qt::black );
+
+        //open txt file
+        currentlabeltxtfile.close(); //close the current one
+
+        QString txtfilename = imagename.section('.',0,0) + ".txt";
+        //qDebug() << "txtfilename " << txtfilename;
+
+        currentlabeltxtfile.setFileName(txtfilename);
+        if ( currentlabeltxtfile.open(QIODevice::ReadOnly) ) //create new if not exist
+        {
+            qDebug() << "opened  " << txtfilename;
+            QTextStream in(&currentlabeltxtfile);
+            QString line = in.readLine();
+            while (!line.isNull())
+            {
+                if(line.isEmpty()) return; // for last line = ""
+
+                ix1 = line.section(' ',0,0).toInt();
+                iy1 = line.section(' ',1,1).toInt();
+                ix2 = line.section(' ',2,2).toInt();
+                iy2 = line.section(' ',3,3).toInt();
+                qDebug() << "line from" << ix1 << ","  << iy1 << " to " << ix2 << "," << iy2;
+
+                QPainter painter(&pixmap);
+                painter.setRenderHint( QPainter::Antialiasing );
+                QPen myPen(Qt::white, 1, Qt::SolidLine);
+                painter.setPen(myPen);
+                painter.drawLine(ix1,iy1,ix2,iy2);
+
+                //QString imgnameonly = imagename.section('/',-1,-1);
+                QString outputpath= path + QDir::separator() + imagename.section('/',-1,-1);
+                qDebug() << outputpath;
+                pixmap.save(outputpath);
+
+
+                line = in.readLine();
+
+            }
+
+        }
+        else
+        {
+            qDebug() << "not opened  " << txtfilename;
+
+        }
+
+
+//pixmap.save(QDir->currentPath() + QDir::separator()+ "path.png" );
+/*
+        //item->setText(0, QString::number(i + 1));
+        ix1 = item->text(0).toInt();
+        iy1 = item->text(1).toInt();
+        ix2 = item->text(2).toInt();
+        iy2 = item->text(3).toInt();
+
+        QPainter painter(&currentimage);
+        QPen myPen(Qt::red, 1, Qt::SolidLine);
+        painter.setPen(myPen);
+        painter.drawLine(ix1,iy1,ix2,iy2);
+        ui->imageLabel->setPixmap(currentimage);
+
+        AddLinePositionToLabelTxtFile(ix1,iy1,ix2,iy2);
+*/
+    }
+}
 
 MainWindow::~MainWindow()
 {

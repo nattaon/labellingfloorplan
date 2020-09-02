@@ -21,8 +21,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_MainWindow_t {
-    QByteArrayData data[15];
-    char stringdata0[185];
+    QByteArrayData data[16];
+    char stringdata0[214];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -36,21 +36,23 @@ QT_MOC_LITERAL(1, 11, 25), // "Button_deleteline_clicked"
 QT_MOC_LITERAL(2, 37, 0), // ""
 QT_MOC_LITERAL(3, 38, 25), // "Button_openfolder_clicked"
 QT_MOC_LITERAL(4, 64, 27), // "Button_selectfolder_clicked"
-QT_MOC_LITERAL(5, 92, 13), // "SelectImgFile"
-QT_MOC_LITERAL(6, 106, 16), // "QTreeWidgetItem*"
-QT_MOC_LITERAL(7, 123, 4), // "item"
-QT_MOC_LITERAL(8, 128, 3), // "col"
-QT_MOC_LITERAL(9, 132, 10), // "SelectLine"
-QT_MOC_LITERAL(10, 143, 9), // "ZoomImage"
-QT_MOC_LITERAL(11, 153, 1), // "f"
-QT_MOC_LITERAL(12, 155, 11), // "on_scroll_h"
-QT_MOC_LITERAL(13, 167, 5), // "value"
-QT_MOC_LITERAL(14, 173, 11) // "on_scroll_v"
+QT_MOC_LITERAL(5, 92, 28), // "Button_generatelabel_clicked"
+QT_MOC_LITERAL(6, 121, 13), // "SelectImgFile"
+QT_MOC_LITERAL(7, 135, 16), // "QTreeWidgetItem*"
+QT_MOC_LITERAL(8, 152, 4), // "item"
+QT_MOC_LITERAL(9, 157, 3), // "col"
+QT_MOC_LITERAL(10, 161, 10), // "SelectLine"
+QT_MOC_LITERAL(11, 172, 9), // "ZoomImage"
+QT_MOC_LITERAL(12, 182, 1), // "f"
+QT_MOC_LITERAL(13, 184, 11), // "on_scroll_h"
+QT_MOC_LITERAL(14, 196, 5), // "value"
+QT_MOC_LITERAL(15, 202, 11) // "on_scroll_v"
 
     },
     "MainWindow\0Button_deleteline_clicked\0"
     "\0Button_openfolder_clicked\0"
-    "Button_selectfolder_clicked\0SelectImgFile\0"
+    "Button_selectfolder_clicked\0"
+    "Button_generatelabel_clicked\0SelectImgFile\0"
     "QTreeWidgetItem*\0item\0col\0SelectLine\0"
     "ZoomImage\0f\0on_scroll_h\0value\0on_scroll_v"
 };
@@ -62,7 +64,7 @@ static const uint qt_meta_data_MainWindow[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-       8,   14, // methods
+       9,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -70,24 +72,26 @@ static const uint qt_meta_data_MainWindow[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,   54,    2, 0x08 /* Private */,
-       3,    0,   55,    2, 0x08 /* Private */,
-       4,    0,   56,    2, 0x08 /* Private */,
-       5,    2,   57,    2, 0x08 /* Private */,
-       9,    2,   62,    2, 0x08 /* Private */,
-      10,    1,   67,    2, 0x08 /* Private */,
-      12,    1,   70,    2, 0x08 /* Private */,
-      14,    1,   73,    2, 0x08 /* Private */,
+       1,    0,   59,    2, 0x08 /* Private */,
+       3,    0,   60,    2, 0x08 /* Private */,
+       4,    0,   61,    2, 0x08 /* Private */,
+       5,    0,   62,    2, 0x08 /* Private */,
+       6,    2,   63,    2, 0x08 /* Private */,
+      10,    2,   68,    2, 0x08 /* Private */,
+      11,    1,   73,    2, 0x08 /* Private */,
+      13,    1,   76,    2, 0x08 /* Private */,
+      15,    1,   79,    2, 0x08 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void, 0x80000000 | 6, QMetaType::Int,    7,    8,
-    QMetaType::Void, 0x80000000 | 6, QMetaType::Int,    7,    8,
-    QMetaType::Void, QMetaType::Double,   11,
-    QMetaType::Void, QMetaType::Int,   13,
-    QMetaType::Void, QMetaType::Int,   13,
+    QMetaType::Void,
+    QMetaType::Void, 0x80000000 | 7, QMetaType::Int,    8,    9,
+    QMetaType::Void, 0x80000000 | 7, QMetaType::Int,    8,    9,
+    QMetaType::Void, QMetaType::Double,   12,
+    QMetaType::Void, QMetaType::Int,   14,
+    QMetaType::Void, QMetaType::Int,   14,
 
        0        // eod
 };
@@ -101,11 +105,12 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 0: _t->Button_deleteline_clicked(); break;
         case 1: _t->Button_openfolder_clicked(); break;
         case 2: _t->Button_selectfolder_clicked(); break;
-        case 3: _t->SelectImgFile((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
-        case 4: _t->SelectLine((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
-        case 5: _t->ZoomImage((*reinterpret_cast< double(*)>(_a[1]))); break;
-        case 6: _t->on_scroll_h((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 7: _t->on_scroll_v((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 3: _t->Button_generatelabel_clicked(); break;
+        case 4: _t->SelectImgFile((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
+        case 5: _t->SelectLine((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
+        case 6: _t->ZoomImage((*reinterpret_cast< double(*)>(_a[1]))); break;
+        case 7: _t->on_scroll_h((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 8: _t->on_scroll_v((*reinterpret_cast< int(*)>(_a[1]))); break;
         default: ;
         }
     }
@@ -136,13 +141,13 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 8)
+        if (_id < 9)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 8;
+        _id -= 9;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 8)
+        if (_id < 9)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 8;
+        _id -= 9;
     }
     return _id;
 }

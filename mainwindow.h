@@ -64,6 +64,7 @@ private slots:
     void Button_deleteline_clicked();
     void Button_openfolder_clicked();
     void Button_selectfolder_clicked();
+    void Button_generatelabel_clicked();
 
     void SelectImgFile(QTreeWidgetItem *item, int col);
     void SelectLine(QTreeWidgetItem *item, int col);

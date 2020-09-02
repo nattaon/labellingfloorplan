@@ -249,7 +249,7 @@
      <bool>false</bool>
     </property>
     <attribute name="headerVisible">
-     <bool>true</bool>
+     <bool>false</bool>
     </attribute>
     <attribute name="headerCascadingSectionResizes">
      <bool>false</bool>
@@ -313,7 +313,14 @@
     </property>
     <addaction name="actionSelect_folder"/>
    </widget>
+   <widget class="QMenu" name="menuLabel">
+    <property name="title">
+     <string>Label</string>
+    </property>
+    <addaction name="actionGenerate_label"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuLabel"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -327,6 +334,11 @@
   <action name="actionSelect_folder">
    <property name="text">
     <string>Select folder</string>
+   </property>
+  </action>
+  <action name="actionGenerate_label">
+   <property name="text">
+    <string>Generate label</string>
    </property>
   </action>
  </widget>

@@ -34,6 +34,7 @@ class Ui_MainWindow
 {
 public:
     QAction *actionSelect_folder;
+    QAction *actionGenerate_label;
     QWidget *centralWidget;
     QTreeWidget *files_treeWidget;
     QPushButton *openfolder_pushButton;
@@ -55,6 +56,7 @@ public:
     QPushButton *deleteline_pushButton;
     QMenuBar *menuBar;
     QMenu *menuFile;
+    QMenu *menuLabel;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
 
@@ -65,6 +67,8 @@ public:
         MainWindow->resize(800, 600);
         actionSelect_folder = new QAction(MainWindow);
         actionSelect_folder->setObjectName(QStringLiteral("actionSelect_folder"));
+        actionGenerate_label = new QAction(MainWindow);
+        actionGenerate_label->setObjectName(QStringLiteral("actionGenerate_label"));
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         files_treeWidget = new QTreeWidget(centralWidget);
@@ -128,7 +132,7 @@ public:
         lines_treeWidget->setItemsExpandable(false);
         lines_treeWidget->setHeaderHidden(false);
         lines_treeWidget->setExpandsOnDoubleClick(false);
-        lines_treeWidget->header()->setVisible(true);
+        lines_treeWidget->header()->setVisible(false);
         lines_treeWidget->header()->setCascadingSectionResizes(false);
         lines_treeWidget->header()->setDefaultSectionSize(20);
         lines_treeWidget->header()->setMinimumSectionSize(20);
@@ -142,6 +146,8 @@ public:
         menuBar->setGeometry(QRect(0, 0, 800, 22));
         menuFile = new QMenu(menuBar);
         menuFile->setObjectName(QStringLiteral("menuFile"));
+        menuLabel = new QMenu(menuBar);
+        menuLabel->setObjectName(QStringLiteral("menuLabel"));
         MainWindow->setMenuBar(menuBar);
         mainToolBar = new QToolBar(MainWindow);
         mainToolBar->setObjectName(QStringLiteral("mainToolBar"));
@@ -151,7 +157,9 @@ public:
         MainWindow->setStatusBar(statusBar);
 
         menuBar->addAction(menuFile->menuAction());
+        menuBar->addAction(menuLabel->menuAction());
         menuFile->addAction(actionSelect_folder);
+        menuLabel->addAction(actionGenerate_label);
 
         retranslateUi(MainWindow);
 
@@ -162,6 +170,7 @@ public:
     {
         MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", Q_NULLPTR));
         actionSelect_folder->setText(QApplication::translate("MainWindow", "Select folder", Q_NULLPTR));
+        actionGenerate_label->setText(QApplication::translate("MainWindow", "Generate label", Q_NULLPTR));
         QTreeWidgetItem *___qtreewidgetitem = files_treeWidget->headerItem();
         ___qtreewidgetitem->setText(0, QApplication::translate("MainWindow", "Files", Q_NULLPTR));
         openfolder_pushButton->setText(QApplication::translate("MainWindow", "Open folder", Q_NULLPTR));
@@ -182,6 +191,7 @@ public:
         ___qtreewidgetitem1->setText(0, QApplication::translate("MainWindow", "x1", Q_NULLPTR));
         deleteline_pushButton->setText(QApplication::translate("MainWindow", "delete line", Q_NULLPTR));
         menuFile->setTitle(QApplication::translate("MainWindow", "File", Q_NULLPTR));
+        menuLabel->setTitle(QApplication::translate("MainWindow", "Label", Q_NULLPTR));
     } // retranslateUi
 
 };
