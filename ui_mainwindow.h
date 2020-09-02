@@ -19,6 +19,7 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMainWindow>
+#include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QScrollArea>
@@ -32,6 +33,7 @@ QT_BEGIN_NAMESPACE
 class Ui_MainWindow
 {
 public:
+    QAction *actionSelect_folder;
     QWidget *centralWidget;
     QTreeWidget *files_treeWidget;
     QPushButton *openfolder_pushButton;
@@ -52,6 +54,7 @@ public:
     QTreeWidget *lines_treeWidget;
     QPushButton *deleteline_pushButton;
     QMenuBar *menuBar;
+    QMenu *menuFile;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
 
@@ -60,6 +63,8 @@ public:
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QStringLiteral("MainWindow"));
         MainWindow->resize(800, 600);
+        actionSelect_folder = new QAction(MainWindow);
+        actionSelect_folder->setObjectName(QStringLiteral("actionSelect_folder"));
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         files_treeWidget = new QTreeWidget(centralWidget);
@@ -85,7 +90,7 @@ public:
         imageLabel->setGeometry(QRect(400, 0, 51, 21));
         scrollArea = new QScrollArea(centralWidget);
         scrollArea->setObjectName(QStringLiteral("scrollArea"));
-        scrollArea->setGeometry(QRect(210, 30, 500, 500));
+        scrollArea->setGeometry(QRect(220, 30, 500, 500));
         scrollArea->setWidgetResizable(true);
         scrollAreaWidgetContents = new QWidget();
         scrollAreaWidgetContents->setObjectName(QStringLiteral("scrollAreaWidgetContents"));
@@ -118,7 +123,7 @@ public:
         alignedxy_checkBox->setChecked(true);
         lines_treeWidget = new QTreeWidget(centralWidget);
         lines_treeWidget->setObjectName(QStringLiteral("lines_treeWidget"));
-        lines_treeWidget->setGeometry(QRect(10, 350, 191, 192));
+        lines_treeWidget->setGeometry(QRect(10, 350, 201, 192));
         lines_treeWidget->setIndentation(20);
         lines_treeWidget->setItemsExpandable(false);
         lines_treeWidget->setHeaderHidden(false);
@@ -130,11 +135,13 @@ public:
         lines_treeWidget->header()->setStretchLastSection(true);
         deleteline_pushButton = new QPushButton(centralWidget);
         deleteline_pushButton->setObjectName(QStringLiteral("deleteline_pushButton"));
-        deleteline_pushButton->setGeometry(QRect(130, 320, 71, 25));
+        deleteline_pushButton->setGeometry(QRect(110, 320, 91, 25));
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
         menuBar->setGeometry(QRect(0, 0, 800, 22));
+        menuFile = new QMenu(menuBar);
+        menuFile->setObjectName(QStringLiteral("menuFile"));
         MainWindow->setMenuBar(menuBar);
         mainToolBar = new QToolBar(MainWindow);
         mainToolBar->setObjectName(QStringLiteral("mainToolBar"));
@@ -142,6 +149,9 @@ public:
         statusBar = new QStatusBar(MainWindow);
         statusBar->setObjectName(QStringLiteral("statusBar"));
         MainWindow->setStatusBar(statusBar);
+
+        menuBar->addAction(menuFile->menuAction());
+        menuFile->addAction(actionSelect_folder);
 
         retranslateUi(MainWindow);
 
@@ -151,6 +161,7 @@ public:
     void retranslateUi(QMainWindow *MainWindow)
     {
         MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", Q_NULLPTR));
+        actionSelect_folder->setText(QApplication::translate("MainWindow", "Select folder", Q_NULLPTR));
         QTreeWidgetItem *___qtreewidgetitem = files_treeWidget->headerItem();
         ___qtreewidgetitem->setText(0, QApplication::translate("MainWindow", "Files", Q_NULLPTR));
         openfolder_pushButton->setText(QApplication::translate("MainWindow", "Open folder", Q_NULLPTR));
@@ -169,7 +180,8 @@ public:
         ___qtreewidgetitem1->setText(2, QApplication::translate("MainWindow", "x2", Q_NULLPTR));
         ___qtreewidgetitem1->setText(1, QApplication::translate("MainWindow", "y1", Q_NULLPTR));
         ___qtreewidgetitem1->setText(0, QApplication::translate("MainWindow", "x1", Q_NULLPTR));
-        deleteline_pushButton->setText(QApplication::translate("MainWindow", "delete", Q_NULLPTR));
+        deleteline_pushButton->setText(QApplication::translate("MainWindow", "delete line", Q_NULLPTR));
+        menuFile->setTitle(QApplication::translate("MainWindow", "File", Q_NULLPTR));
     } // retranslateUi
 
 };

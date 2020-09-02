@@ -10,6 +10,7 @@
 #include <QImageReader>
 #include <QtWidgets>
 #include <QtMath>
+
 namespace Ui
 {
     class MainWindow;
@@ -28,19 +29,26 @@ private:
     QString currentlyOpenedDir;
     QImage image;
     QPixmap rawimage,tempimage,currentimage;
+    //ReadWriteFile *txtfile;
+    QFile currentlabeltxtfile;
+
     double zoomFactor;
     bool drawlinemode;
 
-    void refreshImgView();
-    void loadImage(const QString &fileName);
+    void ListImgInFolder();
+    void ShowImage(const QString &fileName);
     bool eventFilter(QObject *obj, QEvent *event);
     void SetEndLine(int mousex, int mousey);
     void SetStartLine(int mousex, int mousey);
     void TempDrawLine(int mousex, int mousey);
     void TempMarkPixel(int mousex, int mouse);
+    void TempHilightLine(int tx1, int ty1, int tx2, int ty2);
     void print_scrollbar_value();
     void AddLinePositionToTreeWidget(int px1, int py1, int px2, int py2);
+    void AddLinePositionToLabelTxtFile(int px1, int py1, int px2, int py2);
+    void WriteNewAllLinePositiontoLabelTxtFile();
     void DrawImageLabel();
+    void LoadLabelTxtFile(QString filename);
 
     bool isconnectScrollbarEvent;
     int x1,y1,x2,y2; // mouse position
@@ -48,13 +56,15 @@ private:
     enum drawlinestate { none, start, end };
     drawlinestate dstate = none;
 
+    int currentSelectingImageIndex;
     int currentSelectingLineIndex;
 
 
 private slots:
-    void on_drawline_pushButton_clicked();
-    void on_deleteline_pushButton_clicked();
-    void on_openfolder_pushButton_clicked();
+    void Button_deleteline_clicked();
+    void Button_openfolder_clicked();
+    void Button_selectfolder_clicked();
+
     void SelectImgFile(QTreeWidgetItem *item, int col);
     void SelectLine(QTreeWidgetItem *item, int col);
 

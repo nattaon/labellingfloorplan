@@ -6,18 +6,17 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    //connect(ui->openfolder_pushButton, SIGNAL(clicked()), this, SLOT(on_openfolder_pushButton_clicked()));
-    // this line is connected , dont know where, and it double the call function if I connect it here...
+    connect(ui->actionSelect_folder, SIGNAL(triggered()), this, SLOT(Button_selectfolder_clicked()));
+    connect(ui->openfolder_pushButton, SIGNAL(clicked()), this, SLOT(Button_openfolder_clicked()));
+    connect(ui->deleteline_pushButton, SIGNAL(clicked()), this, SLOT(Button_deleteline_clicked()));
+
     connect(ui->files_treeWidget, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(SelectImgFile(QTreeWidgetItem *, int)));
     connect(ui->lines_treeWidget, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(SelectLine(QTreeWidgetItem *, int)));
-
-    //connect(pixmapWidget, SIGNAL(drawEvent(QImage *)), this, SLOT(onMaskDraw(QImage *)));
     connect(ui->zoom_SpinBox, SIGNAL(valueChanged(double)), this, SLOT(ZoomImage(double)));
-    //connect(maskTypeComboBox, SIGNAL(currentIndexChanged(int)), pixmapWidget, SLOT(setMaskEditColor(int)));
-    //connect(pixmapWidget, SIGNAL(zoomFactorChanged(double)), zoomSpinBox, SLOT(setValue(double)));
-    //connect(ui->deleteline_pushButton, SIGNAL(clicked()), this, SLOT(on_deleteline_pushButton_clicked()));
 
-    //connect(ui->drawline_pushButton, SIGNAL(clicked()), this, SLOT(on_drawline_pushButton_clicked()));
+    connect(ui->scrollArea->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(on_scroll_v(int)));
+    connect(ui->scrollArea->horizontalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(on_scroll_h(int)));
+
 
 
 
@@ -41,18 +40,16 @@ MainWindow::MainWindow(QWidget *parent) :
     drawlinemode=false;
     dstate=start;
     zoomFactor=1.0;
-    //ui->zoom_SpinBox->setValue(1.0);
-    connect(ui->scrollArea->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(on_scroll_v(int)));
-    connect(ui->scrollArea->horizontalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(on_scroll_h(int)));
 
+    currentSelectingImageIndex=-1;
     currentSelectingLineIndex=-1;
 
     ui->lines_treeWidget->header()->resizeSection(0, 60);
     ui->lines_treeWidget->header()->resizeSection(1, 45);
     ui->lines_treeWidget->header()->resizeSection(2, 45);
 
+    //txtfile = new ReadWriteFile();
 
-    //ui->lines_treeWidget->setColumnWidth(4, 20);
 }
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
@@ -169,28 +166,31 @@ void MainWindow::SetEndLine(int mousex, int mousey)
     ui->imageLabel->setPixmap(currentimage);
 
     AddLinePositionToTreeWidget(ix1,iy1,ix2,iy2);
-
+    AddLinePositionToLabelTxtFile(ix1,iy1,ix2,iy2);
 
 }
 
-
-void MainWindow::on_openfolder_pushButton_clicked()
+void MainWindow::Button_selectfolder_clicked()
 {
-    //currentlyOpenedDir = QFileDialog::getExistingDirectory(this, "Choose a directory to be read in");
+    currentlyOpenedDir = QFileDialog::getExistingDirectory(this, "Choose a directory to be read in");
 
-    //if (currentlyOpenedDir.isEmpty())
-    //    return;
+    if (currentlyOpenedDir.isEmpty())
+        return;
 
-    //ui->foldername_lineEdit->setText(currentlyOpenedDir);
+    ui->foldername_lineEdit->setText(currentlyOpenedDir);
 
-    //currentlyOpenedDir=ui->foldername_lineEdit->text();
-    //qDebug() << "the integer is" << 777;
-    refreshImgView();
+   ListImgInFolder();
+
+}
+void MainWindow::Button_openfolder_clicked()
+{
+    ListImgInFolder();
 }
 
-void MainWindow::refreshImgView()
+void MainWindow::ListImgInFolder()
 {
-    ui->files_treeWidget->clear();
+
+    currentlyOpenedDir=ui->foldername_lineEdit->text();
     QDir directory(currentlyOpenedDir);
 
     QStringList nameFilters;
@@ -198,11 +198,11 @@ void MainWindow::refreshImgView()
 
     QStringList images = directory.entryList(nameFilters, QDir::Files);
 
-    qDebug() << " images.size() " << images.size();
+    qDebug() << " total img in folder =  " << images.size();
     if (images.size() <= 0)
         return;
 
-
+    ui->files_treeWidget->clear();
     for (int i = 0; i < images.size(); i++)
     {
         QTreeWidgetItem *currentFile = new QTreeWidgetItem(ui->files_treeWidget);
@@ -215,15 +215,79 @@ void MainWindow::refreshImgView()
 
 void MainWindow::SelectImgFile(QTreeWidgetItem *item, int col)
 {
+    if(currentSelectingImageIndex == ui->files_treeWidget->currentIndex().row()) //select the current one (same one)
+    {
+        return;
+    }
+    //save current image label ?
 
-    qDebug() << "mousePressEvent " << ui->files_treeWidget->currentIndex().row();
+
+
+    //
+    currentSelectingImageIndex = ui->files_treeWidget->currentIndex().row(); // current index
+
     //QTreeWidgetItem* item = ui->files_treeWidget->currentIndex();
     //QTreeWidgetItem* item = ui->treeWidget->topLevelItem(last_select_item_index);
-    QString imagename = currentlyOpenedDir+QDir::separator()+item->text(0);
-    qDebug() << imagename;
 
-    loadImage(imagename);
+    QString imagename = currentlyOpenedDir + QDir::separator() + item->text(0);
+    qDebug() << "select " << imagename;
 
+    ui->lines_treeWidget->clear();
+    ShowImage(imagename);
+
+    QString txtfilename = imagename.section('.',0,0) + ".txt";
+    qDebug() << "txtfilename " << txtfilename;
+    //txtfile->OpenTxtFileLabel(txtfilename.toStdString());
+    LoadLabelTxtFile(txtfilename);
+
+}
+
+void MainWindow::LoadLabelTxtFile(QString filename)
+{
+    currentlabeltxtfile.setFileName(filename);
+    //QFile file( filename );
+    if ( currentlabeltxtfile.open(QIODevice::ReadWrite) ) //create new if not exist
+    {
+        qDebug() << "opened  " << filename;
+        //currentlabeltxtfile = file;
+        //QTextStream stream( &file );
+        //stream << "something" << endl;
+        QTextStream in(&currentlabeltxtfile);
+        QString line = in.readLine();
+        while (!line.isNull())
+        {
+
+            qDebug() << line;
+
+            if(line.isEmpty()) return; // for last line = ""
+
+            ix1 = line.section(' ',0,0).toInt();
+            iy1 = line.section(' ',1,1).toInt();
+            ix2 = line.section(' ',2,2).toInt();
+            iy2 = line.section(' ',3,3).toInt();
+            qDebug() << "line from" << ix1 << ","  << iy1 << " to " << ix2 << "," << iy2;
+
+            QPainter painter(&currentimage);
+            QPen myPen(Qt::red, 1, Qt::SolidLine);
+            painter.setPen(myPen);
+            painter.drawLine(ix1,iy1,ix2,iy2);
+            ui->imageLabel->setPixmap(currentimage);
+
+            AddLinePositionToTreeWidget(ix1,iy1,ix2,iy2);
+
+            line = in.readLine();
+
+        }
+    }
+    else
+    {
+        qDebug() << "cannot open " << filename;
+    }
+}
+void MainWindow::AddLinePositionToLabelTxtFile(int px1, int py1, int px2, int py2)
+{
+    QTextStream stream( &currentlabeltxtfile );
+    stream << px1 << " " << py1 << " " << px2 << " " << py2 << endl;
 }
 
 void MainWindow::AddLinePositionToTreeWidget(int px1, int py1, int px2, int py2)
@@ -234,6 +298,8 @@ void MainWindow::AddLinePositionToTreeWidget(int px1, int py1, int px2, int py2)
     currentLine->setText(2, QString::number(px2));
     currentLine->setText(3, QString::number(py2));
     //currentLine->setTextAlignment(0, Qt::AlignLeft);
+
+
 
 }
 
@@ -248,25 +314,67 @@ void MainWindow::SelectLine(QTreeWidgetItem *item, int col)
     qDebug() << item->text(0);
 
     currentSelectingLineIndex=ui->lines_treeWidget->currentIndex().row();
-
+    TempHilightLine(item->text(0).toInt(),item->text(1).toInt(),item->text(2).toInt(),item->text(3).toInt());
 
 }
 
-void MainWindow::on_deleteline_pushButton_clicked()
+void MainWindow::TempHilightLine(int tx1, int ty1, int tx2, int ty2)
 {
+
+    tempimage = currentimage;
+    QPainter painter(&tempimage);
+    QPen myPen(Qt::yellow, 1, Qt::SolidLine);
+    painter.setPen(myPen);
+
+    painter.drawLine(tx1, ty1, tx2, ty2);
+    ui->imageLabel->setPixmap(tempimage);
+}
+
+void MainWindow::Button_deleteline_clicked()
+{
+    int totallines = ui->lines_treeWidget->topLevelItemCount();
+    if(totallines==0) return;
+
     QTreeWidgetItem* selected_line = ui->lines_treeWidget->currentItem();
     qDebug() << "delete " << selected_line->text(0) <<"," <<selected_line->text(1);
+
     delete selected_line;
+
+
+
 
     //reload image
     //QString imagename = currentlyOpenedDir+QDir::separator()+ui->files_treeWidget->currentItem()->text(0);
     //qDebug() << imagename;
 
-    //loadImage(imagename);
+    //ShowImage(imagename);
 
     currentimage=rawimage;
-
+    WriteNewAllLinePositiontoLabelTxtFile();
     DrawImageLabel();
+}
+void MainWindow::WriteNewAllLinePositiontoLabelTxtFile()
+{
+    currentlabeltxtfile.close();
+
+    if(currentlabeltxtfile.remove())
+    {
+        qDebug() << "removed labeltxt" ;
+        if ( currentlabeltxtfile.open(QIODevice::ReadWrite) ) //create new if not exist
+        {
+            qDebug() << "opened(re-create)  " << currentlabeltxtfile.fileName();
+        }
+        else
+        {
+            qDebug() << "fail to open(re-create)  " << currentlabeltxtfile.fileName();
+        }
+
+    }
+    else
+    {
+        qDebug() << "fail to remove labeltxt" ;
+    }
+
 }
 
 void MainWindow::DrawImageLabel()
@@ -294,15 +402,18 @@ void MainWindow::DrawImageLabel()
         painter.drawLine(ix1,iy1,ix2,iy2);
         ui->imageLabel->setPixmap(currentimage);
 
+        AddLinePositionToLabelTxtFile(ix1,iy1,ix2,iy2);
+
     }
 
 }
 
-void MainWindow::loadImage(const QString &fileName)
+void MainWindow::ShowImage(const QString &fileName)
 {
     QPixmap img(fileName);
     ui->imageLabel->setPixmap(img);
     ui->imageLabel->adjustSize();
+    ui->zoom_SpinBox->setValue(1.0);
     ZoomImage(1.0);
     rawimage=img;
     currentimage=img;
@@ -372,34 +483,6 @@ void MainWindow::on_scroll_h(int value)
 {
     qDebug() << "on_scroll horizontal " << value;
     print_scrollbar_value();
-}
-void MainWindow::on_drawline_pushButton_clicked()
-{
-    /*
-    qDebug() << "drawlinemode " << drawlinemode;
-    drawlinemode=!drawlinemode;
-
-    if(drawlinemode)
-    {
-        dstate=start;
-        QPalette pal = ui->drawline_pushButton->palette();
-        pal.setColor(QPalette::Button, QColor(Qt::blue));
-        ui->drawline_pushButton->setAutoFillBackground(true);
-        ui->drawline_pushButton->setPalette(pal);
-        ui->drawline_pushButton->update();
-    }
-    else
-    {
-        dstate=none;
-        QPalette pal = ui->drawline_pushButton->palette();
-        pal.setColor(QPalette::Button, QColor(Qt::gray));
-        ui->drawline_pushButton->setAutoFillBackground(true);
-        ui->drawline_pushButton->setPalette(pal);
-        ui->drawline_pushButton->update();
-    }
-
-*/
-
 }
 
 

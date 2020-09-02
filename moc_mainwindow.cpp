@@ -22,7 +22,7 @@ QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_MainWindow_t {
     QByteArrayData data[15];
-    char stringdata0[202];
+    char stringdata0[185];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -32,28 +32,27 @@ struct qt_meta_stringdata_MainWindow_t {
 static const qt_meta_stringdata_MainWindow_t qt_meta_stringdata_MainWindow = {
     {
 QT_MOC_LITERAL(0, 0, 10), // "MainWindow"
-QT_MOC_LITERAL(1, 11, 30), // "on_drawline_pushButton_clicked"
-QT_MOC_LITERAL(2, 42, 0), // ""
-QT_MOC_LITERAL(3, 43, 32), // "on_deleteline_pushButton_clicked"
-QT_MOC_LITERAL(4, 76, 32), // "on_openfolder_pushButton_clicked"
-QT_MOC_LITERAL(5, 109, 13), // "SelectImgFile"
-QT_MOC_LITERAL(6, 123, 16), // "QTreeWidgetItem*"
-QT_MOC_LITERAL(7, 140, 4), // "item"
-QT_MOC_LITERAL(8, 145, 3), // "col"
-QT_MOC_LITERAL(9, 149, 10), // "SelectLine"
-QT_MOC_LITERAL(10, 160, 9), // "ZoomImage"
-QT_MOC_LITERAL(11, 170, 1), // "f"
-QT_MOC_LITERAL(12, 172, 11), // "on_scroll_h"
-QT_MOC_LITERAL(13, 184, 5), // "value"
-QT_MOC_LITERAL(14, 190, 11) // "on_scroll_v"
+QT_MOC_LITERAL(1, 11, 25), // "Button_deleteline_clicked"
+QT_MOC_LITERAL(2, 37, 0), // ""
+QT_MOC_LITERAL(3, 38, 25), // "Button_openfolder_clicked"
+QT_MOC_LITERAL(4, 64, 27), // "Button_selectfolder_clicked"
+QT_MOC_LITERAL(5, 92, 13), // "SelectImgFile"
+QT_MOC_LITERAL(6, 106, 16), // "QTreeWidgetItem*"
+QT_MOC_LITERAL(7, 123, 4), // "item"
+QT_MOC_LITERAL(8, 128, 3), // "col"
+QT_MOC_LITERAL(9, 132, 10), // "SelectLine"
+QT_MOC_LITERAL(10, 143, 9), // "ZoomImage"
+QT_MOC_LITERAL(11, 153, 1), // "f"
+QT_MOC_LITERAL(12, 155, 11), // "on_scroll_h"
+QT_MOC_LITERAL(13, 167, 5), // "value"
+QT_MOC_LITERAL(14, 173, 11) // "on_scroll_v"
 
     },
-    "MainWindow\0on_drawline_pushButton_clicked\0"
-    "\0on_deleteline_pushButton_clicked\0"
-    "on_openfolder_pushButton_clicked\0"
-    "SelectImgFile\0QTreeWidgetItem*\0item\0"
-    "col\0SelectLine\0ZoomImage\0f\0on_scroll_h\0"
-    "value\0on_scroll_v"
+    "MainWindow\0Button_deleteline_clicked\0"
+    "\0Button_openfolder_clicked\0"
+    "Button_selectfolder_clicked\0SelectImgFile\0"
+    "QTreeWidgetItem*\0item\0col\0SelectLine\0"
+    "ZoomImage\0f\0on_scroll_h\0value\0on_scroll_v"
 };
 #undef QT_MOC_LITERAL
 
@@ -99,9 +98,9 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         MainWindow *_t = static_cast<MainWindow *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->on_drawline_pushButton_clicked(); break;
-        case 1: _t->on_deleteline_pushButton_clicked(); break;
-        case 2: _t->on_openfolder_pushButton_clicked(); break;
+        case 0: _t->Button_deleteline_clicked(); break;
+        case 1: _t->Button_openfolder_clicked(); break;
+        case 2: _t->Button_selectfolder_clicked(); break;
         case 3: _t->SelectImgFile((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
         case 4: _t->SelectLine((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
         case 5: _t->ZoomImage((*reinterpret_cast< double(*)>(_a[1]))); break;

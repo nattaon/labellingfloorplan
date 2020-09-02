@@ -100,7 +100,7 @@
    <widget class="QScrollArea" name="scrollArea">
     <property name="geometry">
      <rect>
-      <x>210</x>
+      <x>220</x>
       <y>30</y>
       <width>500</width>
       <height>500</height>
@@ -232,7 +232,7 @@
      <rect>
       <x>10</x>
       <y>350</y>
-      <width>191</width>
+      <width>201</width>
       <height>192</height>
      </rect>
     </property>
@@ -287,14 +287,14 @@
    <widget class="QPushButton" name="deleteline_pushButton">
     <property name="geometry">
      <rect>
-      <x>130</x>
+      <x>110</x>
       <y>320</y>
-      <width>71</width>
+      <width>91</width>
       <height>25</height>
      </rect>
     </property>
     <property name="text">
-     <string>delete</string>
+     <string>delete line</string>
     </property>
    </widget>
   </widget>
@@ -307,6 +307,13 @@
      <height>22</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionSelect_folder"/>
+   </widget>
+   <addaction name="menuFile"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -317,6 +324,11 @@
    </attribute>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionSelect_folder">
+   <property name="text">
+    <string>Select folder</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
