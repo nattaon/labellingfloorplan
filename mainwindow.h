@@ -71,6 +71,9 @@ private slots:
     void Button_zoomout_clicked();
     void Button_nextimg_clicked();
     void Button_previmg_clicked();
+    void Button_ccwrotation_clicked();
+    void Button_cwrotation_clicked();
+    void Button_saveimg_clicked();
 
     void SelectImgFile(QTreeWidgetItem *item, int col);
     void SelectLine(QTreeWidgetItem *item, int col);

@@ -18,6 +18,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->openfolder_pushButton, SIGNAL(clicked()), this, SLOT(Button_openfolder_clicked()));
     connect(ui->deleteline_pushButton, SIGNAL(clicked()), this, SLOT(Button_deleteline_clicked()));
+    connect(ui->ccw_rotation_pushButton, SIGNAL(clicked()), this, SLOT(Button_ccwrotation_clicked()));
+    connect(ui->cw_rotation_pushButton, SIGNAL(clicked()), this, SLOT(Button_cwrotation_clicked()));
+    connect(ui->saveimg_pushButton, SIGNAL(clicked()), this, SLOT(Button_saveimg_clicked()));
 
     connect(ui->files_treeWidget, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(SelectImgFile(QTreeWidgetItem *, int)));
     connect(ui->lines_treeWidget, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(SelectLine(QTreeWidgetItem *, int)));
@@ -642,6 +645,40 @@ void MainWindow::Button_generatelabel_clicked()
         AddLinePositionToLabelTxtFile(ix1,iy1,ix2,iy2);
 */
     }
+}
+void MainWindow::Button_ccwrotation_clicked()
+{
+    int rotval = ui->rotation_lineEdit->text().toInt() *-1;
+    QPixmap rotimg=currentimage;
+    QMatrix rm;
+    rm.rotate(rotval);
+    rotimg = rotimg.transformed(rm);
+    ui->imageLabel->setPixmap(rotimg);
+    currentimage=rotimg;
+}
+void MainWindow::Button_cwrotation_clicked()
+{
+    int rotval = ui->rotation_lineEdit->text().toInt();
+/*
+    QPixmap img(fileName);
+    ui->imageLabel->setPixmap(img);
+    ui->imageLabel->adjustSize();
+    ui->zoom_SpinBox->setValue(1.0);
+    ZoomImage(1.0);
+    rawimage=img;
+    currentimage=img;
+*/
+    QPixmap rotimg=currentimage;
+    QMatrix rm;
+    rm.rotate(rotval);
+    rotimg = rotimg.transformed(rm);
+    ui->imageLabel->setPixmap(rotimg);
+    currentimage=rotimg;
+
+}
+void MainWindow::Button_saveimg_clicked()
+{
+
 }
 
 MainWindow::~MainWindow()

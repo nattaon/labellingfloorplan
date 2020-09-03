@@ -47,7 +47,7 @@
      <rect>
       <x>110</x>
       <y>0</y>
-      <width>281</width>
+      <width>351</width>
       <height>25</height>
      </rect>
     </property>
@@ -215,13 +215,13 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>250</y>
-      <width>141</width>
+      <y>255</y>
+      <width>91</width>
       <height>23</height>
      </rect>
     </property>
     <property name="text">
-     <string>force aligned xy</string>
+     <string>aligned xy</string>
     </property>
     <property name="checked">
      <bool>true</bool>
@@ -243,7 +243,7 @@
      <bool>false</bool>
     </property>
     <property name="headerHidden">
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
     <property name="expandsOnDoubleClick">
      <bool>false</bool>
@@ -289,12 +289,80 @@
      <rect>
       <x>110</x>
       <y>320</y>
-      <width>91</width>
+      <width>101</width>
       <height>25</height>
      </rect>
     </property>
     <property name="text">
      <string>delete line</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="rotation_lineEdit">
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>260</y>
+      <width>31</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>1</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="cw_rotation_pushButton">
+    <property name="geometry">
+     <rect>
+      <x>180</x>
+      <y>260</y>
+      <width>31</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>CW</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="ccw_rotation_pushButton">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>260</y>
+      <width>41</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>CCW</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_5">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>240</y>
+      <width>91</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Rotation img</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="saveimg_pushButton">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>290</y>
+      <width>101</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>save img</string>
     </property>
    </widget>
   </widget>
