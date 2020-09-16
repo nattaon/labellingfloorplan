@@ -51,6 +51,7 @@ private:
     void WriteNewAllLinePositiontoLabelTxtFile();
     void DrawImageLabel();
     void LoadLabelTxtFile(QString filename);
+    void Select_last_line();
 
     bool isconnectScrollbarEvent;
     int x1,y1,x2,y2; // mouse position
@@ -89,6 +90,8 @@ private slots:
     void on_bt_x_plus_clicked();
     void on_bt_y_minus_clicked();
     void on_bt_y_plus_clicked();
+    void on_files_treeWidget_itemSelectionChanged();
+    void on_lines_treeWidget_itemSelectionChanged();
 };
 
 #endif // MAINWINDOW_H

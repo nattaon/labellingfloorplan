@@ -383,12 +383,12 @@ void MainWindow::AddLinePositionToTreeWidget(int px1, int py1, int px2, int py2)
 void MainWindow::SelectLine(QTreeWidgetItem *item, int col)
 {
 
-    qDebug() << "mousePressEvent " << ui->lines_treeWidget->currentIndex().row();
+    //qDebug() << "mousePressEvent " << ui->lines_treeWidget->currentIndex().row();
     //QTreeWidgetItem* item = ui->files_treeWidget->currentIndex();
     //QTreeWidgetItem* item = ui->treeWidget->topLevelItem(last_select_item_index);
 
     //QString imagename = currentlyOpenedDir+QDir::separator()+item->text(0);
-    qDebug() << item->text(0);
+    //qDebug() << item->text(0);
 
     currentSelectingLineIndex=ui->lines_treeWidget->currentIndex().row();
     TempHilightLine(item->text(0).toInt(),item->text(1).toInt(),item->text(2).toInt(),item->text(3).toInt());
@@ -434,6 +434,9 @@ void MainWindow::Button_deleteline_clicked()
     currentimage=rawimage;
     WriteNewAllLinePositiontoLabelTxtFile();
     DrawImageLabel();
+
+    //update current selecting item
+    on_lines_treeWidget_itemSelectionChanged();
 }
 void MainWindow::WriteNewAllLinePositiontoLabelTxtFile()
 {
@@ -722,7 +725,13 @@ void MainWindow::on_actionCancel_line_triggered()
 {
     dstate=start;
 }
-
+void MainWindow::Select_last_line()
+{
+    int totallines = ui->lines_treeWidget->topLevelItemCount();
+    QTreeWidgetItem* item = ui->lines_treeWidget->topLevelItem(totallines-1);
+    ui->lines_treeWidget->setCurrentItem(item);
+    SelectLine(item,0);  // this will do     TempHilightLine(sx1,sy1,sx2,sy2);
+}
 void MainWindow::on_bt_x_minus_clicked()
 {
     if(currentSelectingLineIndex==-1) return;
@@ -743,9 +752,8 @@ void MainWindow::on_bt_x_minus_clicked()
 
     //by deleting the current selecting one, the function will call update label txt file , and gui
     Button_deleteline_clicked();
+    Select_last_line();
 
-
-    TempHilightLine(sx1,sy1,sx2,sy2);
 }
 
 void MainWindow::on_bt_x_plus_clicked()
@@ -769,9 +777,7 @@ void MainWindow::on_bt_x_plus_clicked()
 
     //by deleting the current selecting one, the function will call update label txt file , and gui
     Button_deleteline_clicked();
-
-
-    TempHilightLine(sx1,sy1,sx2,sy2);
+    Select_last_line();
 }
 
 void MainWindow::on_bt_y_minus_clicked()
@@ -794,9 +800,7 @@ void MainWindow::on_bt_y_minus_clicked()
 
     //by deleting the current selecting one, the function will call update label txt file , and gui
     Button_deleteline_clicked();
-
-
-    TempHilightLine(sx1,sy1,sx2,sy2);
+    Select_last_line();
 }
 
 void MainWindow::on_bt_y_plus_clicked()
@@ -820,7 +824,25 @@ void MainWindow::on_bt_y_plus_clicked()
 
     //by deleting the current selecting one, the function will call update label txt file , and gui
     Button_deleteline_clicked();
+    Select_last_line();
+}
 
+void MainWindow::on_files_treeWidget_itemSelectionChanged()
+{
+    int SelectingIndex = ui->files_treeWidget->currentIndex().row(); //assign a current selecting index
+    if(SelectingIndex==-1) return;
+    QTreeWidgetItem *item = ui->files_treeWidget->topLevelItem(SelectingIndex);
 
-    TempHilightLine(sx1,sy1,sx2,sy2);
+    SelectImgFile(item,0);
+}
+
+void MainWindow::on_lines_treeWidget_itemSelectionChanged()
+{
+    int SelectingIndex = ui->lines_treeWidget->currentIndex().row(); //assign a current selecting index
+    qDebug() <<"SelectingIndex " <<SelectingIndex;
+
+    if(SelectingIndex==-1) return;
+    QTreeWidgetItem *item = ui->lines_treeWidget->topLevelItem(SelectingIndex);
+
+    SelectLine(item,0);
 }
