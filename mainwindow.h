@@ -55,11 +55,14 @@ private:
     bool isconnectScrollbarEvent;
     int x1,y1,x2,y2; // mouse position
     int ix1,iy1,ix2,iy2; //image position
+    int diffx,diffy;
     enum drawlinestate { none, start, end };
     drawlinestate dstate = none;
 
     int currentSelectingImageIndex;
     int currentSelectingLineIndex;
+
+    bool isMouseinLabellingArea;
 
 
 private slots:
@@ -81,6 +84,11 @@ private slots:
     void ZoomImage(double f);
     void on_scroll_h(int value);
     void on_scroll_v(int value);
+    void on_actionCancel_line_triggered();
+    void on_bt_x_minus_clicked();
+    void on_bt_x_plus_clicked();
+    void on_bt_y_minus_clicked();
+    void on_bt_y_plus_clicked();
 };
 
 #endif // MAINWINDOW_H

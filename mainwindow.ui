@@ -18,7 +18,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>30</y>
+      <y>0</y>
       <width>191</width>
       <height>181</height>
      </rect>
@@ -32,7 +32,7 @@
    <widget class="QPushButton" name="openfolder_pushButton">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>210</x>
       <y>0</y>
       <width>89</width>
       <height>25</height>
@@ -45,7 +45,7 @@
    <widget class="QLineEdit" name="foldername_lineEdit">
     <property name="geometry">
      <rect>
-      <x>110</x>
+      <x>310</x>
       <y>0</y>
       <width>351</width>
       <height>25</height>
@@ -56,7 +56,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>235</y>
+      <y>200</y>
       <width>41</width>
       <height>17</height>
      </rect>
@@ -68,8 +68,8 @@
    <widget class="QDoubleSpinBox" name="zoom_SpinBox">
     <property name="geometry">
      <rect>
-      <x>60</x>
-      <y>230</y>
+      <x>50</x>
+      <y>195</y>
       <width>51</width>
       <height>26</height>
      </rect>
@@ -87,7 +87,7 @@
    <widget class="QLabel" name="imageLabel">
     <property name="geometry">
      <rect>
-      <x>400</x>
+      <x>610</x>
       <y>0</y>
       <width>51</width>
       <height>21</height>
@@ -125,7 +125,7 @@
      <rect>
       <x>10</x>
       <y>320</y>
-      <width>61</width>
+      <width>71</width>
       <height>20</height>
      </rect>
     </property>
@@ -137,7 +137,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>210</y>
+      <y>180</y>
       <width>67</width>
       <height>17</height>
      </rect>
@@ -150,7 +150,7 @@
     <property name="geometry">
      <rect>
       <x>80</x>
-      <y>210</y>
+      <y>180</y>
       <width>91</width>
       <height>17</height>
      </rect>
@@ -215,7 +215,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>255</y>
+      <y>220</y>
       <width>91</width>
       <height>23</height>
      </rect>
@@ -231,7 +231,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>350</y>
+      <y>340</y>
       <width>201</width>
       <height>192</height>
      </rect>
@@ -243,7 +243,7 @@
      <bool>false</bool>
     </property>
     <property name="headerHidden">
-     <bool>false</bool>
+     <bool>true</bool>
     </property>
     <property name="expandsOnDoubleClick">
      <bool>false</bool>
@@ -287,9 +287,9 @@
    <widget class="QPushButton" name="deleteline_pushButton">
     <property name="geometry">
      <rect>
-      <x>110</x>
-      <y>320</y>
-      <width>101</width>
+      <x>130</x>
+      <y>310</y>
+      <width>81</width>
       <height>25</height>
      </rect>
     </property>
@@ -300,10 +300,10 @@
    <widget class="QLineEdit" name="rotation_lineEdit">
     <property name="geometry">
      <rect>
-      <x>150</x>
-      <y>260</y>
+      <x>700</x>
+      <y>10</y>
       <width>31</width>
-      <height>25</height>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
@@ -316,10 +316,10 @@
    <widget class="QPushButton" name="cw_rotation_pushButton">
     <property name="geometry">
      <rect>
-      <x>180</x>
-      <y>260</y>
+      <x>730</x>
+      <y>10</y>
       <width>31</width>
-      <height>25</height>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
@@ -329,10 +329,10 @@
    <widget class="QPushButton" name="ccw_rotation_pushButton">
     <property name="geometry">
      <rect>
-      <x>110</x>
-      <y>260</y>
+      <x>660</x>
+      <y>10</y>
       <width>41</width>
-      <height>25</height>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
@@ -342,27 +342,121 @@
    <widget class="QLabel" name="label_5">
     <property name="geometry">
      <rect>
-      <x>120</x>
-      <y>240</y>
+      <x>660</x>
+      <y>0</y>
       <width>91</width>
       <height>17</height>
      </rect>
     </property>
     <property name="text">
-     <string>Rotation img</string>
+     <string>Rotate img</string>
     </property>
    </widget>
    <widget class="QPushButton" name="saveimg_pushButton">
     <property name="geometry">
      <rect>
-      <x>110</x>
-      <y>290</y>
-      <width>101</width>
+      <x>760</x>
+      <y>10</y>
+      <width>31</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>save</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="drawnext_checkBox">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>240</y>
+      <width>91</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>draw next</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="linewide_label">
+    <property name="geometry">
+     <rect>
+      <x>70</x>
+      <y>260</y>
+      <width>67</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>0,0</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_6">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>260</y>
+      <width>67</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>linewide</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="bt_x_plus">
+    <property name="geometry">
+     <rect>
+      <x>180</x>
+      <y>250</y>
+      <width>31</width>
       <height>25</height>
      </rect>
     </property>
     <property name="text">
-     <string>save img</string>
+     <string>x +1</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="bt_x_minus">
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>250</y>
+      <width>31</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>x -1</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="bt_y_plus">
+    <property name="geometry">
+     <rect>
+      <x>180</x>
+      <y>280</y>
+      <width>31</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>y +1</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="bt_y_minus">
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>280</y>
+      <width>31</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>y -1</string>
     </property>
    </widget>
   </widget>
@@ -391,6 +485,7 @@
     <addaction name="actionNext_image"/>
     <addaction name="actionPrev_image"/>
     <addaction name="actionDelete_line"/>
+    <addaction name="actionCancel_line"/>
    </widget>
    <widget class="QMenu" name="menuShortcut">
     <property name="title">
@@ -470,6 +565,14 @@
    </property>
    <property name="shortcut">
     <string>Del</string>
+   </property>
+  </action>
+  <action name="actionCancel_line">
+   <property name="text">
+    <string>Cancel line</string>
+   </property>
+   <property name="shortcut">
+    <string>Esc</string>
    </property>
   </action>
  </widget>

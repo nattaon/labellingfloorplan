@@ -46,7 +46,8 @@ MainWindow::MainWindow(QWidget *parent) :
     //ui->imageLabel->installEventFilter(this);
     qApp->installEventFilter(this);
 
-    currentlyOpenedDir=QDir::currentPath()+QDir::separator()+"labeltest";
+    //currentlyOpenedDir=QDir::currentPath()+QDir::separator()+"labeltest";
+    currentlyOpenedDir=QString("../labeltest");
     ui->foldername_lineEdit->setText(currentlyOpenedDir);
 
     drawlinemode=false;
@@ -63,6 +64,12 @@ MainWindow::MainWindow(QWidget *parent) :
     //txtfile = new ReadWriteFile();
     QPoint p = ui->scrollArea->geometry().topLeft();
     qDebug() << "ui->scrollArea topLeft " << p;
+
+    isMouseinLabellingArea=false;
+
+    QCursor cursor(Qt::CrossCursor);
+    QApplication::setOverrideCursor(cursor);
+    QApplication::changeOverrideCursor(cursor);
 
 }
 void MainWindow::resizeEvent(QResizeEvent *e)
@@ -82,20 +89,24 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 
     if( (dynamic_cast<QMouseEvent*>(event)) && (obj==ui->imageLabel))
     {
+        isMouseinLabellingArea=true;
+
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
         int mousex=mouseEvent->pos().x();
         int mousey=mouseEvent->pos().y();
 
-        QString mouseposition = QString("(%1,%2)").arg(mousex).arg(mousey);
-        ui->mousepos_label->setText(mouseposition);
+        //QString mouseposition = QString("(%1,%2)").arg(mousex).arg(mousey);
+        //ui->mousepos_label->setText(mouseposition);
+        QString mouseposition = QString("%1,%2").arg((int)round(mousex/zoomFactor)).arg((int)round(mousey/zoomFactor));
+
 
         switch(dstate)
         {
             case none: break;
-            case start: ui->mousepos_label->setText("start"); TempMarkPixel(mousex,mousey);  break;
-            case end : ui->mousepos_label->setText("end");  TempDrawLine(mousex,mousey); break;
+            case start: ui->mousepos_label->setText("start"); TempMarkPixel(mousex,mousey);  ui->x1y1_label->setText(mouseposition); break;
+            case end : ui->mousepos_label->setText("end");  TempDrawLine(mousex,mousey); ui->x2y2_label->setText(mouseposition); break;
         }
-
+        //qDebug() << "current draw state: " << dstate;
 
 
         if (event->type() == QEvent::MouseButtonPress)
@@ -109,11 +120,21 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
             {
                 case none: break;
                 case start: SetStartLine(mousex,mousey); dstate=end;  break;
-                case end : SetEndLine(mousex,mousey); dstate=start;  break;
+                case end :
+                {
+                    SetEndLine(mousex,mousey); dstate=start;
+                    if(ui->drawnext_checkBox->isChecked())
+                    {
+                        //set at the previous line end pixel
+                        SetStartLine(ix2*zoomFactor,iy2*zoomFactor); dstate=end;
+                    }
+                    break;
+                }
             }
 
         }
     }
+
 
   return false;
 }
@@ -123,7 +144,7 @@ void MainWindow::TempMarkPixel(int mousex, int mousey)
     QPainter painter(&tempimage);
     QPen myPen(Qt::red, 1, Qt::SolidLine);
     painter.setPen(myPen);
-    painter.drawPoint(int(mousex/zoomFactor),int(mousey/zoomFactor));
+    painter.drawPoint((int)round(mousex/zoomFactor),(int)round(mousey/zoomFactor));
     ui->imageLabel->setPixmap(tempimage);
 }
 
@@ -134,24 +155,26 @@ void MainWindow::SetStartLine(int mousex, int mousey)
 
     x1=mousex;
     y1=mousey;
-    QString mouseposition = QString("%1,%2").arg(mousex).arg(mousey);
+    QString mouseposition = QString("%1,%2").arg((int)round(mousex/zoomFactor)).arg((int)round(mousey/zoomFactor));
     ui->x1y1_label->setText(mouseposition);
+    //ui->x1y1_label->setText(QString::number(diffx) +", "+ QString::number(diffy));
 
     tempimage = currentimage;
 
 }
 void MainWindow::TempDrawLine(int mousex, int mousey)
 {
-    QString mouseposition = QString("%1,%2").arg(mousex).arg(mousey);
+    QString mouseposition = QString("%1,%2").arg((int)round(mousex/zoomFactor)).arg((int)round(mousey/zoomFactor));
     ui->x2y2_label->setText(mouseposition);
+    //ui->x2y2_label->setText(QString::number(diffx) +", "+ QString::number(diffy));
 
     tempimage = currentimage;
     QPainter painter(&tempimage);
     QPen myPen(Qt::red, 1, Qt::SolidLine);
     painter.setPen(myPen);
 
-    painter.drawLine(x1/zoomFactor, y1/zoomFactor, mousex/zoomFactor, mousey/zoomFactor);
-    qDebug() << "draw from " << x1 << ","  << y1 << " to " << mousex << "," << mousey;
+    painter.drawLine(round(x1/zoomFactor), round(y1/zoomFactor), round(mousex/zoomFactor), round(mousey/zoomFactor));
+    //qDebug() << "draw from " << x1 << ","  << y1 << " to " << mousex << "," << mousey;
 
 
     ui->imageLabel->setPixmap(tempimage);
@@ -164,10 +187,10 @@ void MainWindow::SetEndLine(int mousex, int mousey)
 
     if(ui->alignedxy_checkBox->isChecked())
     {
-        int diffx = qFabs(x1-x2);
-        int diffy = qFabs(y1-y2);
-        qDebug() << "diffx " <<diffx;
-        qDebug() << "diffy " <<diffy;
+        diffx = qFabs(x1-x2);
+        diffy = qFabs(y1-y2);
+        //qDebug() << "diffx " <<diffx;
+        //qDebug() << "diffy " <<diffy;
 
         if(diffx < diffy) // draw vertical line
         {
@@ -179,10 +202,10 @@ void MainWindow::SetEndLine(int mousex, int mousey)
         }
 
     }
-    ix1=int(x1/zoomFactor);
-    iy1=int(y1/zoomFactor);
-    ix2=int(x2/zoomFactor);
-    iy2=int(y2/zoomFactor);
+    ix1=(int)round(x1/zoomFactor);
+    iy1=(int)round(y1/zoomFactor);
+    ix2=(int)round(x2/zoomFactor);
+    iy2=(int)round(y2/zoomFactor);
 
     QPainter painter(&currentimage);
     QPen myPen(Qt::red, 1, Qt::SolidLine);
@@ -192,6 +215,10 @@ void MainWindow::SetEndLine(int mousex, int mousey)
 
     AddLinePositionToTreeWidget(ix1,iy1,ix2,iy2);
     AddLinePositionToLabelTxtFile(ix1,iy1,ix2,iy2);
+
+    diffx = qFabs(ix1-ix2);
+    diffy = qFabs(iy1-iy2);
+    ui->linewide_label->setText(QString::number(diffx) +", "+ QString::number(diffy));
 
 }
 
@@ -307,7 +334,7 @@ void MainWindow::LoadLabelTxtFile(QString filename)
         while (!line.isNull())
         {
 
-            qDebug() << line;
+            //qDebug() << line;
 
             if(line.isEmpty()) return; // for last line = ""
 
@@ -315,7 +342,7 @@ void MainWindow::LoadLabelTxtFile(QString filename)
             iy1 = line.section(' ',1,1).toInt();
             ix2 = line.section(' ',2,2).toInt();
             iy2 = line.section(' ',3,3).toInt();
-            qDebug() << "line from" << ix1 << ","  << iy1 << " to " << ix2 << "," << iy2;
+            //qDebug() << "line from" << ix1 << ","  << iy1 << " to " << ix2 << "," << iy2;
 
             QPainter painter(&currentimage);
             QPen myPen(Qt::red, 1, Qt::SolidLine);
@@ -378,6 +405,11 @@ void MainWindow::TempHilightLine(int tx1, int ty1, int tx2, int ty2)
 
     painter.drawLine(tx1, ty1, tx2, ty2);
     ui->imageLabel->setPixmap(tempimage);
+
+    //show line wide
+    diffx = qFabs(tx1-tx2);
+    diffy = qFabs(ty1-ty2);
+    ui->linewide_label->setText(QString::number(diffx) +", "+ QString::number(diffy));
 }
 
 void MainWindow::Button_deleteline_clicked()
@@ -684,4 +716,111 @@ void MainWindow::Button_saveimg_clicked()
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::on_actionCancel_line_triggered()
+{
+    dstate=start;
+}
+
+void MainWindow::on_bt_x_minus_clicked()
+{
+    if(currentSelectingLineIndex==-1) return;
+    //currentSelectingLineIndex=ui->lines_treeWidget->currentIndex().row();
+    QTreeWidgetItem* item = ui->lines_treeWidget->topLevelItem(currentSelectingLineIndex);
+
+    int sx1=item->text(0).toInt();
+    int sy1=item->text(1).toInt();
+    int sx2=item->text(2).toInt();
+    int sy2=item->text(3).toInt();
+
+    if(sx1>0) sx1--;
+    if(sx2>0) sx2--;
+    //add a new one
+
+    AddLinePositionToTreeWidget(sx1,sy1,sx2,sy2);
+    AddLinePositionToLabelTxtFile(sx1,sy1,sx2,sy2);
+
+    //by deleting the current selecting one, the function will call update label txt file , and gui
+    Button_deleteline_clicked();
+
+
+    TempHilightLine(sx1,sy1,sx2,sy2);
+}
+
+void MainWindow::on_bt_x_plus_clicked()
+{
+    if(currentSelectingLineIndex==-1) return;
+    //currentSelectingLineIndex=ui->lines_treeWidget->currentIndex().row();
+    QTreeWidgetItem* item = ui->lines_treeWidget->topLevelItem(currentSelectingLineIndex);
+
+    int sx1=item->text(0).toInt();
+    int sy1=item->text(1).toInt();
+    int sx2=item->text(2).toInt();
+    int sy2=item->text(3).toInt();
+
+    //index range [0,width-1]
+    if(sx1<currentimage.width()-1) sx1++;
+    if(sx2<currentimage.width()-1) sx2++;
+    //add a new one
+
+    AddLinePositionToTreeWidget(sx1,sy1,sx2,sy2);
+    AddLinePositionToLabelTxtFile(sx1,sy1,sx2,sy2);
+
+    //by deleting the current selecting one, the function will call update label txt file , and gui
+    Button_deleteline_clicked();
+
+
+    TempHilightLine(sx1,sy1,sx2,sy2);
+}
+
+void MainWindow::on_bt_y_minus_clicked()
+{
+    if(currentSelectingLineIndex==-1) return;
+    //currentSelectingLineIndex=ui->lines_treeWidget->currentIndex().row();
+    QTreeWidgetItem* item = ui->lines_treeWidget->topLevelItem(currentSelectingLineIndex);
+
+    int sx1=item->text(0).toInt();
+    int sy1=item->text(1).toInt();
+    int sx2=item->text(2).toInt();
+    int sy2=item->text(3).toInt();
+
+    if(sy1>0) sy1--;
+    if(sy2>0) sy2--;
+    //add a new one
+
+    AddLinePositionToTreeWidget(sx1,sy1,sx2,sy2);
+    AddLinePositionToLabelTxtFile(sx1,sy1,sx2,sy2);
+
+    //by deleting the current selecting one, the function will call update label txt file , and gui
+    Button_deleteline_clicked();
+
+
+    TempHilightLine(sx1,sy1,sx2,sy2);
+}
+
+void MainWindow::on_bt_y_plus_clicked()
+{
+    if(currentSelectingLineIndex==-1) return;
+    //currentSelectingLineIndex=ui->lines_treeWidget->currentIndex().row();
+    QTreeWidgetItem* item = ui->lines_treeWidget->topLevelItem(currentSelectingLineIndex);
+
+    int sx1=item->text(0).toInt();
+    int sy1=item->text(1).toInt();
+    int sx2=item->text(2).toInt();
+    int sy2=item->text(3).toInt();
+
+    //index range [0,width-1]
+    if(sy1<currentimage.height()-1) sy1++;
+    if(sy2<currentimage.height()-1) sy2++;
+    //add a new one
+
+    AddLinePositionToTreeWidget(sx1,sy1,sx2,sy2);
+    AddLinePositionToLabelTxtFile(sx1,sy1,sx2,sy2);
+
+    //by deleting the current selecting one, the function will call update label txt file , and gui
+    Button_deleteline_clicked();
+
+
+    TempHilightLine(sx1,sy1,sx2,sy2);
 }
