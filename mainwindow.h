@@ -48,8 +48,8 @@ private:
     void print_scrollbar_value();
     void AddLinePositionToTreeWidget(int px1, int py1, int px2, int py2);
     void AddLinePositionToLabelTxtFile(int px1, int py1, int px2, int py2);
-    void WriteNewAllLinePositiontoLabelTxtFile();
-    void DrawImageLabel();
+    void ClearDatainCurrentLabelFile();
+    void DrawImageLabel_WriteLabelFile_fromWidgetItem();
     void LoadLabelTxtFile(QString filename);
     void Select_last_line();
 
@@ -92,6 +92,8 @@ private slots:
     void on_bt_y_plus_clicked();
     void on_files_treeWidget_itemSelectionChanged();
     void on_lines_treeWidget_itemSelectionChanged();
+    void on_lines_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
+    void on_lines_treeWidget_itemChanged(QTreeWidgetItem *item, int column);
 };
 
 #endif // MAINWINDOW_H

@@ -46,8 +46,8 @@ MainWindow::MainWindow(QWidget *parent) :
     //ui->imageLabel->installEventFilter(this);
     qApp->installEventFilter(this);
 
-    //currentlyOpenedDir=QDir::currentPath()+QDir::separator()+"labeltest";
-    currentlyOpenedDir=QString("../labeltest");
+    currentlyOpenedDir=QDir::currentPath()+QDir::separator()+"labeltest";
+    //currentlyOpenedDir=QString("../labeltest");
     ui->foldername_lineEdit->setText(currentlyOpenedDir);
 
     drawlinemode=false;
@@ -374,6 +374,8 @@ void MainWindow::AddLinePositionToTreeWidget(int px1, int py1, int px2, int py2)
     currentLine->setText(1, QString::number(py1));
     currentLine->setText(2, QString::number(px2));
     currentLine->setText(3, QString::number(py2));
+
+    currentLine->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
     //currentLine->setTextAlignment(0, Qt::AlignLeft);
 
 
@@ -432,17 +434,17 @@ void MainWindow::Button_deleteline_clicked()
     //ShowImage(imagename);
 
     currentimage=rawimage;
-    WriteNewAllLinePositiontoLabelTxtFile();
-    DrawImageLabel();
+    ClearDatainCurrentLabelFile();
+    DrawImageLabel_WriteLabelFile_fromWidgetItem();
 
-    //update current selecting item
+    //hilight current selecting item
     on_lines_treeWidget_itemSelectionChanged();
 }
-void MainWindow::WriteNewAllLinePositiontoLabelTxtFile()
+void MainWindow::ClearDatainCurrentLabelFile()
 {
     currentlabeltxtfile.close();
 
-    if(currentlabeltxtfile.remove())
+    if(currentlabeltxtfile.remove()) // delete file
     {
         qDebug() << "removed labeltxt" ;
         if ( currentlabeltxtfile.open(QIODevice::ReadWrite) ) //create new if not exist
@@ -462,7 +464,7 @@ void MainWindow::WriteNewAllLinePositiontoLabelTxtFile()
 
 }
 
-void MainWindow::DrawImageLabel()
+void MainWindow::DrawImageLabel_WriteLabelFile_fromWidgetItem()
 {
     int totallines = ui->lines_treeWidget->topLevelItemCount();
     qDebug() << "totallines " << totallines;
@@ -745,14 +747,18 @@ void MainWindow::on_bt_x_minus_clicked()
 
     if(sx1>0) sx1--;
     if(sx2>0) sx2--;
-    //add a new one
 
-    AddLinePositionToTreeWidget(sx1,sy1,sx2,sy2);
-    AddLinePositionToLabelTxtFile(sx1,sy1,sx2,sy2);
+    //rewrite line widget item
+    item->setText(0, QString::number(sx1));
+    item->setText(1, QString::number(sy1));
+    item->setText(2, QString::number(sx2));
+    item->setText(3, QString::number(sy2));
 
-    //by deleting the current selecting one, the function will call update label txt file , and gui
-    Button_deleteline_clicked();
-    Select_last_line();
+    //clear label img and label txt file, then rewrite all data from line widget
+    currentimage=rawimage;
+    ClearDatainCurrentLabelFile();
+    DrawImageLabel_WriteLabelFile_fromWidgetItem();
+    SelectLine(item,0); // temphilight line
 
 }
 
@@ -770,14 +776,20 @@ void MainWindow::on_bt_x_plus_clicked()
     //index range [0,width-1]
     if(sx1<currentimage.width()-1) sx1++;
     if(sx2<currentimage.width()-1) sx2++;
-    //add a new one
 
-    AddLinePositionToTreeWidget(sx1,sy1,sx2,sy2);
-    AddLinePositionToLabelTxtFile(sx1,sy1,sx2,sy2);
+    //rewrite line widget item
+    item->setText(0, QString::number(sx1));
+    item->setText(1, QString::number(sy1));
+    item->setText(2, QString::number(sx2));
+    item->setText(3, QString::number(sy2));
 
-    //by deleting the current selecting one, the function will call update label txt file , and gui
-    Button_deleteline_clicked();
-    Select_last_line();
+    //clear label img and label txt file, then rewrite all data from line widget
+    currentimage=rawimage;
+    ClearDatainCurrentLabelFile();
+    DrawImageLabel_WriteLabelFile_fromWidgetItem();
+    SelectLine(item,0); // temphilight line
+
+
 }
 
 void MainWindow::on_bt_y_minus_clicked()
@@ -793,14 +805,19 @@ void MainWindow::on_bt_y_minus_clicked()
 
     if(sy1>0) sy1--;
     if(sy2>0) sy2--;
-    //add a new one
 
-    AddLinePositionToTreeWidget(sx1,sy1,sx2,sy2);
-    AddLinePositionToLabelTxtFile(sx1,sy1,sx2,sy2);
+    //rewrite line widget item
+    item->setText(0, QString::number(sx1));
+    item->setText(1, QString::number(sy1));
+    item->setText(2, QString::number(sx2));
+    item->setText(3, QString::number(sy2));
 
-    //by deleting the current selecting one, the function will call update label txt file , and gui
-    Button_deleteline_clicked();
-    Select_last_line();
+    //clear label img and label txt file, then rewrite all data from line widget
+    currentimage=rawimage;
+    ClearDatainCurrentLabelFile();
+    DrawImageLabel_WriteLabelFile_fromWidgetItem();
+    SelectLine(item,0); // temphilight line
+
 }
 
 void MainWindow::on_bt_y_plus_clicked()
@@ -817,14 +834,19 @@ void MainWindow::on_bt_y_plus_clicked()
     //index range [0,width-1]
     if(sy1<currentimage.height()-1) sy1++;
     if(sy2<currentimage.height()-1) sy2++;
-    //add a new one
 
-    AddLinePositionToTreeWidget(sx1,sy1,sx2,sy2);
-    AddLinePositionToLabelTxtFile(sx1,sy1,sx2,sy2);
+    //rewrite line widget item
+    item->setText(0, QString::number(sx1));
+    item->setText(1, QString::number(sy1));
+    item->setText(2, QString::number(sx2));
+    item->setText(3, QString::number(sy2));
 
-    //by deleting the current selecting one, the function will call update label txt file , and gui
-    Button_deleteline_clicked();
-    Select_last_line();
+    //clear label img and label txt file, then rewrite all data from line widget
+    currentimage=rawimage;
+    ClearDatainCurrentLabelFile();
+    DrawImageLabel_WriteLabelFile_fromWidgetItem();
+    SelectLine(item,0); // temphilight line
+
 }
 
 void MainWindow::on_files_treeWidget_itemSelectionChanged()
@@ -845,4 +867,22 @@ void MainWindow::on_lines_treeWidget_itemSelectionChanged()
     QTreeWidgetItem *item = ui->lines_treeWidget->topLevelItem(SelectingIndex);
 
     SelectLine(item,0);
+}
+
+void MainWindow::on_lines_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
+{
+    //qDebug() << "column" << QString::number(column) << " selected";
+    ui->lines_treeWidget->editItem(item, column); //allow input of new value
+
+}
+
+void MainWindow::on_lines_treeWidget_itemChanged(QTreeWidgetItem *item, int column)
+{
+    //qDebug() << "column" << QString::number(column) << " changed";
+    // updated draw label and label txt file according to the new line value
+    currentimage=rawimage;
+    ClearDatainCurrentLabelFile();
+    DrawImageLabel_WriteLabelFile_fromWidgetItem();
+    SelectLine(item,0); // temphilight line
+
 }

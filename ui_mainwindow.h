@@ -164,7 +164,7 @@ public:
         lines_treeWidget->setGeometry(QRect(10, 340, 201, 192));
         lines_treeWidget->setIndentation(20);
         lines_treeWidget->setItemsExpandable(false);
-        lines_treeWidget->setHeaderHidden(true);
+        lines_treeWidget->setHeaderHidden(false);
         lines_treeWidget->setExpandsOnDoubleClick(false);
         lines_treeWidget->header()->setVisible(false);
         lines_treeWidget->header()->setCascadingSectionResizes(false);
