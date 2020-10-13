@@ -34,6 +34,7 @@ private:
 
     double zoomFactor;
     bool drawlinemode;
+    bool isLoadingLabel;
 
     void ListImgInFolder();
     void ShowImage(const QString &fileName);
@@ -94,6 +95,11 @@ private slots:
     void on_lines_treeWidget_itemSelectionChanged();
     void on_lines_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
     void on_lines_treeWidget_itemChanged(QTreeWidgetItem *item, int column);
+    void on_actionToggle_AlignXY_triggered();
+    void on_actionToggle_DrawNext_triggered();
+    void on_actionSee_shortcut_triggered();
+    void on_bt_save_label_clicked();
+    void on_bt_dup_label_clicked();
 };
 
 #endif // MAINWINDOW_H

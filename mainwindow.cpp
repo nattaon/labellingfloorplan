@@ -18,16 +18,16 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->openfolder_pushButton, SIGNAL(clicked()), this, SLOT(Button_openfolder_clicked()));
     connect(ui->deleteline_pushButton, SIGNAL(clicked()), this, SLOT(Button_deleteline_clicked()));
-    connect(ui->ccw_rotation_pushButton, SIGNAL(clicked()), this, SLOT(Button_ccwrotation_clicked()));
-    connect(ui->cw_rotation_pushButton, SIGNAL(clicked()), this, SLOT(Button_cwrotation_clicked()));
-    connect(ui->saveimg_pushButton, SIGNAL(clicked()), this, SLOT(Button_saveimg_clicked()));
+    //connect(ui->ccw_rotation_pushButton, SIGNAL(clicked()), this, SLOT(Button_ccwrotation_clicked()));
+    //connect(ui->cw_rotation_pushButton, SIGNAL(clicked()), this, SLOT(Button_cwrotation_clicked()));
+    //connect(ui->saveimg_pushButton, SIGNAL(clicked()), this, SLOT(Button_saveimg_clicked()));
 
     connect(ui->files_treeWidget, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(SelectImgFile(QTreeWidgetItem *, int)));
     connect(ui->lines_treeWidget, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(SelectLine(QTreeWidgetItem *, int)));
     connect(ui->zoom_SpinBox, SIGNAL(valueChanged(double)), this, SLOT(ZoomImage(double)));
 
-    connect(ui->scrollArea->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(on_scroll_v(int)));
-    connect(ui->scrollArea->horizontalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(on_scroll_h(int)));
+    //connect(ui->scrollArea->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(on_scroll_v(int)));
+    //connect(ui->scrollArea->horizontalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(on_scroll_h(int)));
 
 
 
@@ -46,12 +46,15 @@ MainWindow::MainWindow(QWidget *parent) :
     //ui->imageLabel->installEventFilter(this);
     qApp->installEventFilter(this);
 
-    currentlyOpenedDir=QDir::currentPath()+QDir::separator()+"labeltest";
+    //currentlyOpenedDir=QDir::currentPath()+QDir::separator()+"labeltest";
+    currentlyOpenedDir="/home/okuboali/nattaon_ws/_0room_dataset/beike/beike-ply/aligned/histograme";
     //currentlyOpenedDir=QString("../labeltest");
     ui->foldername_lineEdit->setText(currentlyOpenedDir);
 
     drawlinemode=false;
-    dstate=start;
+    dstate=none;
+    isLoadingLabel=false;
+    //dstate=start;
     zoomFactor=1.0;
 
     currentSelectingImageIndex=-1;
@@ -141,10 +144,13 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 void MainWindow::TempMarkPixel(int mousex, int mousey)
 {
     tempimage = currentimage;
-    QPainter painter(&tempimage);
+    //QPainter painter(&tempimage);
+    QPainter *painter = new QPainter(&tempimage);
+
     QPen myPen(Qt::red, 1, Qt::SolidLine);
-    painter.setPen(myPen);
-    painter.drawPoint((int)round(mousex/zoomFactor),(int)round(mousey/zoomFactor));
+    painter->setPen(myPen);
+    painter->drawPoint((int)round(mousex/zoomFactor),(int)round(mousey/zoomFactor));
+    delete painter;
     ui->imageLabel->setPixmap(tempimage);
 }
 
@@ -169,14 +175,15 @@ void MainWindow::TempDrawLine(int mousex, int mousey)
     //ui->x2y2_label->setText(QString::number(diffx) +", "+ QString::number(diffy));
 
     tempimage = currentimage;
-    QPainter painter(&tempimage);
+    //QPainter painter(&tempimage);
+    QPainter *painter = new QPainter(&tempimage);
     QPen myPen(Qt::red, 1, Qt::SolidLine);
-    painter.setPen(myPen);
+    painter->setPen(myPen);
 
-    painter.drawLine(round(x1/zoomFactor), round(y1/zoomFactor), round(mousex/zoomFactor), round(mousey/zoomFactor));
+    painter->drawLine(round(x1/zoomFactor), round(y1/zoomFactor), round(mousex/zoomFactor), round(mousey/zoomFactor));
     //qDebug() << "draw from " << x1 << ","  << y1 << " to " << mousex << "," << mousey;
 
-
+    delete painter;
     ui->imageLabel->setPixmap(tempimage);
 }
 
@@ -207,10 +214,12 @@ void MainWindow::SetEndLine(int mousex, int mousey)
     ix2=(int)round(x2/zoomFactor);
     iy2=(int)round(y2/zoomFactor);
 
-    QPainter painter(&currentimage);
+    //QPainter painter(&currentimage);
+    QPainter *painter = new QPainter(&currentimage);
     QPen myPen(Qt::red, 1, Qt::SolidLine);
-    painter.setPen(myPen);
-    painter.drawLine(ix1,iy1,ix2,iy2);
+    painter->setPen(myPen);
+    painter->drawLine(ix1,iy1,ix2,iy2);
+    delete painter;
     ui->imageLabel->setPixmap(currentimage);
 
     AddLinePositionToTreeWidget(ix1,iy1,ix2,iy2);
@@ -262,11 +271,12 @@ void MainWindow::ListImgInFolder()
     }
 
     currentSelectingImageIndex=-1;
-    Button_nextimg_clicked();
+    //Button_nextimg_clicked();
 
 }
 void MainWindow::Button_nextimg_clicked()
 {
+
     int totalimgs = ui->files_treeWidget->topLevelItemCount();
     int toSelectImageIndex = currentSelectingImageIndex+1;
     qDebug() << "toSelectImageIndex " << toSelectImageIndex <<"/"<<totalimgs;
@@ -274,7 +284,7 @@ void MainWindow::Button_nextimg_clicked()
     {
         QTreeWidgetItem *item = ui->files_treeWidget->topLevelItem(toSelectImageIndex);
         ui->files_treeWidget->setCurrentItem(item);
-        SelectImgFile(item,0);
+        SelectImgFile(item,0); //item is the row, column=0
     }
 }
 void MainWindow::Button_previmg_clicked()
@@ -310,7 +320,9 @@ void MainWindow::SelectImgFile(QTreeWidgetItem *item, int col)
     qDebug() << "select " << imagename;
 
     ui->lines_treeWidget->clear();
+
     ShowImage(imagename);
+    dstate=start;
 
     QString txtfilename = imagename.section('.',0,0) + ".txt";
     qDebug() << "txtfilename " << txtfilename;
@@ -333,7 +345,7 @@ void MainWindow::LoadLabelTxtFile(QString filename)
         QString line = in.readLine();
         while (!line.isNull())
         {
-
+            isLoadingLabel=true;
             //qDebug() << line;
 
             if(line.isEmpty()) return; // for last line = ""
@@ -344,10 +356,12 @@ void MainWindow::LoadLabelTxtFile(QString filename)
             iy2 = line.section(' ',3,3).toInt();
             //qDebug() << "line from" << ix1 << ","  << iy1 << " to " << ix2 << "," << iy2;
 
-            QPainter painter(&currentimage);
+            //QPainter painter(&currentimage);
+            QPainter *painter = new QPainter(&currentimage);
             QPen myPen(Qt::red, 1, Qt::SolidLine);
-            painter.setPen(myPen);
-            painter.drawLine(ix1,iy1,ix2,iy2);
+            painter->setPen(myPen);
+            painter->drawLine(ix1,iy1,ix2,iy2);
+            delete painter;
             ui->imageLabel->setPixmap(currentimage);
 
             AddLinePositionToTreeWidget(ix1,iy1,ix2,iy2);
@@ -355,6 +369,7 @@ void MainWindow::LoadLabelTxtFile(QString filename)
             line = in.readLine();
 
         }
+        isLoadingLabel=false;
     }
     else
     {
@@ -401,11 +416,13 @@ void MainWindow::TempHilightLine(int tx1, int ty1, int tx2, int ty2)
 {
 
     tempimage = currentimage;
-    QPainter painter(&tempimage);
+    //QPainter painter(&tempimage);
+    QPainter *painter = new QPainter(&tempimage);
     QPen myPen(Qt::yellow, 1, Qt::SolidLine);
-    painter.setPen(myPen);
+    painter->setPen(myPen);
 
-    painter.drawLine(tx1, ty1, tx2, ty2);
+    painter->drawLine(tx1, ty1, tx2, ty2);
+    delete painter;
     ui->imageLabel->setPixmap(tempimage);
 
     //show line wide
@@ -483,10 +500,12 @@ void MainWindow::DrawImageLabel_WriteLabelFile_fromWidgetItem()
         ix2 = item->text(2).toInt();
         iy2 = item->text(3).toInt();
 
-        QPainter painter(&currentimage);
+        //QPainter painter(&currentimage);
+        QPainter *painter = new QPainter(&currentimage);
         QPen myPen(Qt::red, 1, Qt::SolidLine);
-        painter.setPen(myPen);
-        painter.drawLine(ix1,iy1,ix2,iy2);
+        painter->setPen(myPen);
+        painter->drawLine(ix1,iy1,ix2,iy2);
+        delete painter;
         ui->imageLabel->setPixmap(currentimage);
 
         AddLinePositionToLabelTxtFile(ix1,iy1,ix2,iy2);
@@ -580,12 +599,12 @@ void MainWindow::print_scrollbar_value()
 }
 void MainWindow::on_scroll_v(int value)
 {
-    qDebug() << "on_scroll vertical " << value;
+    //qDebug() << "on_scroll vertical " << value;
     print_scrollbar_value();
 }
 void MainWindow::on_scroll_h(int value)
 {
-    qDebug() << "on_scroll horizontal " << value;
+    //qDebug() << "on_scroll horizontal " << value;
     print_scrollbar_value();
 }
 
@@ -641,12 +660,13 @@ void MainWindow::Button_generatelabel_clicked()
                 iy2 = line.section(' ',3,3).toInt();
                 qDebug() << "line from" << ix1 << ","  << iy1 << " to " << ix2 << "," << iy2;
 
-                QPainter painter(&pixmap);
-                painter.setRenderHint( QPainter::Antialiasing );
+                //QPainter painter(&pixmap);
+                QPainter *painter = new QPainter(&pixmap);
+                painter->setRenderHint( QPainter::Antialiasing );
                 QPen myPen(Qt::white, 1, Qt::SolidLine);
-                painter.setPen(myPen);
-                painter.drawLine(ix1,iy1,ix2,iy2);
-
+                painter->setPen(myPen);
+                painter->drawLine(ix1,iy1,ix2,iy2);
+                delete painter;
                 //QString imgnameonly = imagename.section('/',-1,-1);
                 QString outputpath= path + QDir::separator() + imagename.section('/',-1,-1);
                 qDebug() << outputpath;
@@ -684,19 +704,19 @@ void MainWindow::Button_generatelabel_clicked()
     }
 }
 void MainWindow::Button_ccwrotation_clicked()
-{
+{/*
     int rotval = ui->rotation_lineEdit->text().toInt() *-1;
     QPixmap rotimg=currentimage;
     QMatrix rm;
     rm.rotate(rotval);
     rotimg = rotimg.transformed(rm);
     ui->imageLabel->setPixmap(rotimg);
-    currentimage=rotimg;
+    currentimage=rotimg;*/
 }
 void MainWindow::Button_cwrotation_clicked()
-{
+{/*
     int rotval = ui->rotation_lineEdit->text().toInt();
-/*
+
     QPixmap img(fileName);
     ui->imageLabel->setPixmap(img);
     ui->imageLabel->adjustSize();
@@ -705,13 +725,14 @@ void MainWindow::Button_cwrotation_clicked()
     rawimage=img;
     currentimage=img;
 */
+    /*
     QPixmap rotimg=currentimage;
     QMatrix rm;
     rm.rotate(rotval);
     rotimg = rotimg.transformed(rm);
     ui->imageLabel->setPixmap(rotimg);
     currentimage=rotimg;
-
+*/
 }
 void MainWindow::Button_saveimg_clicked()
 {
@@ -884,5 +905,66 @@ void MainWindow::on_lines_treeWidget_itemChanged(QTreeWidgetItem *item, int colu
     ClearDatainCurrentLabelFile();
     DrawImageLabel_WriteLabelFile_fromWidgetItem();
     SelectLine(item,0); // temphilight line
+
+}
+
+void MainWindow::on_actionToggle_AlignXY_triggered()
+{
+    qDebug() << "alignedxy_checkBox " << ui->alignedxy_checkBox->isChecked();
+    if(ui->alignedxy_checkBox->isChecked())
+        ui->alignedxy_checkBox->setChecked(false);
+    else
+        ui->alignedxy_checkBox->setChecked(true);
+}
+
+void MainWindow::on_actionToggle_DrawNext_triggered()
+{
+    qDebug() << "drawnext_checkBox " << ui->drawnext_checkBox->isChecked();
+    if(ui->drawnext_checkBox->isChecked())
+        ui->drawnext_checkBox->setChecked(false);
+    else
+        ui->drawnext_checkBox->setChecked(true);
+}
+
+void MainWindow::on_actionSee_shortcut_triggered()
+{
+    QString str = "Select folder: Ctrl+O \n"
+                  "Generate Label image: Ctrl+G \n"
+                  "Zoom in: + \n"
+                  "Zoom out: - \n"
+                  "Next image: > \n"
+                  "Prev image: < \n"
+                  "Delete line: Del \n"
+                  "Cancel line: Esc \n"
+                  "Toggle align xy: Ctrl+A \n"
+                  "Toggle draw next: Ctrl+D \n";
+
+    //str = QString("name: %1\nsurname: %2\ndata: %3").arg(...).arg(...).arg(...);
+    QMessageBox::information(0, "Shortcut keys", str);
+ /*
+    QMessageBox::information(
+        this,
+        tr("Shortcut keys"),
+        tr("Select folder: Ctrl+O"),
+        tr("Generate Label image: Ctrl+G"),
+        tr("Zoom in: +"),
+        tr("Zoom out: -"),
+        tr("Next image: >"),
+        tr("Prev image: <"),
+        tr("Delete line: Del"),
+        tr("Cancel line: Esc"),
+        tr("Toggle align xy: Ctrl+A"),
+        tr("Toggle draw next: Ctrl+D")
+        );*/
+}
+
+void MainWindow::on_bt_save_label_clicked()
+{
+    ClearDatainCurrentLabelFile();
+    DrawImageLabel_WriteLabelFile_fromWidgetItem();
+}
+
+void MainWindow::on_bt_dup_label_clicked()
+{
 
 }
