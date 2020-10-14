@@ -33,8 +33,9 @@ private:
     QFile currentlabeltxtfile;
 
     double zoomFactor;
-    bool drawlinemode;
+    bool isLineWidgetEditable;
     bool isLoadingLabel;
+
 
     void ListImgInFolder();
     void ShowImage(const QString &fileName);
@@ -47,9 +48,9 @@ private:
     void TempMarkPixel(int mousex, int mouse);
     void TempHilightLine(int tx1, int ty1, int tx2, int ty2);
     void print_scrollbar_value();
-    void AddLinePositionToTreeWidget(int px1, int py1, int px2, int py2);
-    void AddLinePositionToLabelTxtFile(int px1, int py1, int px2, int py2);
-    void ClearDatainCurrentLabelFile();
+    void Add_Line_to_TreeWidget(int px1, int py1, int px2, int py2);
+    void Add_Line_to_Textfile(int px1, int py1, int px2, int py2);
+    void Delete_Textfile();
     void DrawImageLabel_WriteLabelFile_fromWidgetItem();
     void LoadLabelTxtFile(QString filename);
     void Select_last_line();
@@ -100,6 +101,9 @@ private slots:
     void on_actionSee_shortcut_triggered();
     void on_bt_save_label_clicked();
     void on_bt_dup_label_clicked();
+    void on_lines_treeWidget_itemClicked(QTreeWidgetItem *item, int column);
+    void on_pushButton_clicked();
+    void on_bt_delete_label_clicked();
 };
 
 #endif // MAINWINDOW_H

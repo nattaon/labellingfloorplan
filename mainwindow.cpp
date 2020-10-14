@@ -47,11 +47,13 @@ MainWindow::MainWindow(QWidget *parent) :
     qApp->installEventFilter(this);
 
     //currentlyOpenedDir=QDir::currentPath()+QDir::separator()+"labeltest";
-    currentlyOpenedDir="/home/okuboali/nattaon_ws/_0room_dataset/beike/beike-ply/aligned/histograme";
+    //currentlyOpenedDir="/home/okuboali/nattaon_ws/_0room_dataset/beike/beike-ply/aligned/histograme";
     //currentlyOpenedDir=QString("../labeltest");
+    currentlyOpenedDir="/home/nattaon/ply/aligned-beike/histograme";
     ui->foldername_lineEdit->setText(currentlyOpenedDir);
+    ListImgInFolder();
 
-    drawlinemode=false;
+    isLineWidgetEditable=false;
     dstate=none;
     isLoadingLabel=false;
     //dstate=start;
@@ -116,7 +118,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         {
             //QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
             qDebug()<< obj->metaObject()->className() << ", clicked at " << mousex << "," << mousey;
-
+            isLineWidgetEditable=false;
 
 
             switch(dstate)
@@ -222,8 +224,8 @@ void MainWindow::SetEndLine(int mousex, int mousey)
     delete painter;
     ui->imageLabel->setPixmap(currentimage);
 
-    AddLinePositionToTreeWidget(ix1,iy1,ix2,iy2);
-    AddLinePositionToLabelTxtFile(ix1,iy1,ix2,iy2);
+    Add_Line_to_TreeWidget(ix1,iy1,ix2,iy2);
+    Add_Line_to_Textfile(ix1,iy1,ix2,iy2);
 
     diffx = qFabs(ix1-ix2);
     diffy = qFabs(iy1-iy2);
@@ -341,7 +343,9 @@ void MainWindow::LoadLabelTxtFile(QString filename)
         //currentlabeltxtfile = file;
         //QTextStream stream( &file );
         //stream << "something" << endl;
+
         QTextStream in(&currentlabeltxtfile);
+        // # Read line by line
         QString line = in.readLine();
         while (!line.isNull())
         {
@@ -362,9 +366,11 @@ void MainWindow::LoadLabelTxtFile(QString filename)
             painter->setPen(myPen);
             painter->drawLine(ix1,iy1,ix2,iy2);
             delete painter;
-            ui->imageLabel->setPixmap(currentimage);
 
-            AddLinePositionToTreeWidget(ix1,iy1,ix2,iy2);
+            // # Draw image
+            ui->imageLabel->setPixmap(currentimage);
+            // # Add a line parameter to widget
+            Add_Line_to_TreeWidget(ix1,iy1,ix2,iy2);
 
             line = in.readLine();
 
@@ -376,13 +382,13 @@ void MainWindow::LoadLabelTxtFile(QString filename)
         qDebug() << "cannot open " << filename;
     }
 }
-void MainWindow::AddLinePositionToLabelTxtFile(int px1, int py1, int px2, int py2)
+void MainWindow::Add_Line_to_Textfile(int px1, int py1, int px2, int py2)
 {
     QTextStream stream( &currentlabeltxtfile );
     stream << px1 << " " << py1 << " " << px2 << " " << py2 << endl;
 }
 
-void MainWindow::AddLinePositionToTreeWidget(int px1, int py1, int px2, int py2)
+void MainWindow::Add_Line_to_TreeWidget(int px1, int py1, int px2, int py2)
 {
     QTreeWidgetItem *currentLine = new QTreeWidgetItem(ui->lines_treeWidget);
     currentLine->setText(0, QString::number(px1));
@@ -451,13 +457,13 @@ void MainWindow::Button_deleteline_clicked()
     //ShowImage(imagename);
 
     currentimage=rawimage;
-    ClearDatainCurrentLabelFile();
+    Delete_Textfile();
     DrawImageLabel_WriteLabelFile_fromWidgetItem();
 
     //hilight current selecting item
     on_lines_treeWidget_itemSelectionChanged();
 }
-void MainWindow::ClearDatainCurrentLabelFile()
+void MainWindow::Delete_Textfile()
 {
     currentlabeltxtfile.close();
 
@@ -508,7 +514,7 @@ void MainWindow::DrawImageLabel_WriteLabelFile_fromWidgetItem()
         delete painter;
         ui->imageLabel->setPixmap(currentimage);
 
-        AddLinePositionToLabelTxtFile(ix1,iy1,ix2,iy2);
+        Add_Line_to_Textfile(ix1,iy1,ix2,iy2);
 
     }
 
@@ -699,7 +705,7 @@ void MainWindow::Button_generatelabel_clicked()
         painter.drawLine(ix1,iy1,ix2,iy2);
         ui->imageLabel->setPixmap(currentimage);
 
-        AddLinePositionToLabelTxtFile(ix1,iy1,ix2,iy2);
+        Add_Line_to_Textfile(ix1,iy1,ix2,iy2);
 */
     }
 }
@@ -777,7 +783,7 @@ void MainWindow::on_bt_x_minus_clicked()
 
     //clear label img and label txt file, then rewrite all data from line widget
     currentimage=rawimage;
-    ClearDatainCurrentLabelFile();
+    Delete_Textfile();
     DrawImageLabel_WriteLabelFile_fromWidgetItem();
     SelectLine(item,0); // temphilight line
 
@@ -806,7 +812,7 @@ void MainWindow::on_bt_x_plus_clicked()
 
     //clear label img and label txt file, then rewrite all data from line widget
     currentimage=rawimage;
-    ClearDatainCurrentLabelFile();
+    Delete_Textfile();
     DrawImageLabel_WriteLabelFile_fromWidgetItem();
     SelectLine(item,0); // temphilight line
 
@@ -835,7 +841,7 @@ void MainWindow::on_bt_y_minus_clicked()
 
     //clear label img and label txt file, then rewrite all data from line widget
     currentimage=rawimage;
-    ClearDatainCurrentLabelFile();
+    Delete_Textfile();
     DrawImageLabel_WriteLabelFile_fromWidgetItem();
     SelectLine(item,0); // temphilight line
 
@@ -864,7 +870,7 @@ void MainWindow::on_bt_y_plus_clicked()
 
     //clear label img and label txt file, then rewrite all data from line widget
     currentimage=rawimage;
-    ClearDatainCurrentLabelFile();
+    Delete_Textfile();
     DrawImageLabel_WriteLabelFile_fromWidgetItem();
     SelectLine(item,0); // temphilight line
 
@@ -872,6 +878,8 @@ void MainWindow::on_bt_y_plus_clicked()
 
 void MainWindow::on_files_treeWidget_itemSelectionChanged()
 {
+    isLineWidgetEditable=false;
+
     int SelectingIndex = ui->files_treeWidget->currentIndex().row(); //assign a current selecting index
     if(SelectingIndex==-1) return;
     QTreeWidgetItem *item = ui->files_treeWidget->topLevelItem(SelectingIndex);
@@ -897,14 +905,28 @@ void MainWindow::on_lines_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, in
 
 }
 
+// # Trigger this when
+//  - modify line position,
+//  - adding line read from textfile,
+//  - draw a new line.
 void MainWindow::on_lines_treeWidget_itemChanged(QTreeWidgetItem *item, int column)
 {
     //qDebug() << "column" << QString::number(column) << " changed";
     // updated draw label and label txt file according to the new line value
-    currentimage=rawimage;
-    ClearDatainCurrentLabelFile();
-    DrawImageLabel_WriteLabelFile_fromWidgetItem();
-    SelectLine(item,0); // temphilight line
+    if(isLoadingLabel)
+    {
+        //qDebug() << " on_lines_treeWidget_itemChanged isLoadingLabel " << isLoadingLabel;
+    }
+
+    if(isLineWidgetEditable)
+    {
+        //qDebug() << " on_lines_treeWidget_itemChanged isLoadingLabel " << isLoadingLabel;
+        currentimage=rawimage;
+        Delete_Textfile();
+        DrawImageLabel_WriteLabelFile_fromWidgetItem();
+        SelectLine(item,0); // temphilight line
+    }
+
 
 }
 
@@ -960,11 +982,98 @@ void MainWindow::on_actionSee_shortcut_triggered()
 
 void MainWindow::on_bt_save_label_clicked()
 {
-    ClearDatainCurrentLabelFile();
+    Delete_Textfile();
     DrawImageLabel_WriteLabelFile_fromWidgetItem();
 }
 
 void MainWindow::on_bt_dup_label_clicked()
 {
+
+    QTreeWidgetItem *item = ui->files_treeWidget->topLevelItem(currentSelectingImageIndex);
+
+    QString imagename = currentlyOpenedDir + QDir::separator() + item->text(0);
+    QString current_txtfilename = imagename.section('.',0,0) + ".txt";
+    qDebug() << "-current_txtfilename " << current_txtfilename;
+
+    QString file_to_duplicate  = QFileDialog::getOpenFileName(this, "Choose a text to duplicate for "+item->text(0), currentlyOpenedDir,"label(*.txt)");
+    qDebug() << "-file_to_duplicate " << file_to_duplicate;
+
+    //QString filePath = QFileDialog::getOpenFileName(this ,
+    //                                                QObject::tr("Pdf files"),
+    //      "C:/", "books(*.pdf)");
+
+
+
+    //QFileInfo fi(filePath);
+    //QString fileName= fi.fileName();
+    //QString desktopPath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
+    //QString destinationPath= desktopPath+QDir::separator()+fileName;
+    currentlabeltxtfile.close();
+    currentlabeltxtfile.remove();
+
+    if(QFile::copy(file_to_duplicate, current_txtfilename))
+    {
+        qDebug() << "copy success";
+
+        currentimage=rawimage;
+        ui->lines_treeWidget->clear();
+
+        ShowImage(imagename);
+        dstate=start;
+        LoadLabelTxtFile(current_txtfilename);
+    }
+    else
+        qDebug() << "copy failed";
+
+}
+
+void MainWindow::on_lines_treeWidget_itemClicked(QTreeWidgetItem *item, int column)
+{
+    isLineWidgetEditable=true;
+}
+
+void MainWindow::on_pushButton_clicked()
+{
+
+}
+
+void MainWindow::on_bt_delete_label_clicked()
+{
+
+    QTreeWidgetItem *item = ui->files_treeWidget->topLevelItem(currentSelectingImageIndex);
+
+    QString imagename = currentlyOpenedDir + QDir::separator() + item->text(0);
+    QString current_txtfilename = imagename.section('.',0,0) + ".txt";
+    qDebug() << "-current_txtfilename " << current_txtfilename;
+
+    QMessageBox msgBox;
+    msgBox.setText("Delete label textfile");
+    msgBox.setInformativeText("Are you sure to delete "+ item->text(0) +" ?");
+    msgBox.setStandardButtons(QMessageBox::No | QMessageBox::Yes);
+    msgBox.setDefaultButton(QMessageBox::No);
+    int ret = msgBox.exec();
+
+        switch (ret) {
+          case QMessageBox::Yes:
+                currentlabeltxtfile.close();
+                currentlabeltxtfile.remove();
+
+                currentimage=rawimage;
+                ui->lines_treeWidget->clear();
+
+                ShowImage(imagename);
+                dstate=start;
+                LoadLabelTxtFile(current_txtfilename);
+
+              break;
+          case QMessageBox::No:
+              // Don't Save was clicked
+              break;
+          default:
+              // should never be reached
+              break;
+        }
+
+
 
 }
