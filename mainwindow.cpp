@@ -29,7 +29,8 @@ MainWindow::MainWindow(QWidget *parent) :
     //connect(ui->scrollArea->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(on_scroll_v(int)));
     //connect(ui->scrollArea->horizontalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(on_scroll_h(int)));
 
-
+    ui->files_treeWidget->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    ui->files_treeWidget->header()->setStretchLastSection(false);
 
 
     ui->imageLabel->setBackgroundRole(QPalette::Base);
@@ -49,18 +50,22 @@ MainWindow::MainWindow(QWidget *parent) :
     //currentlyOpenedDir=QDir::currentPath()+QDir::separator()+"labeltest";
     //currentlyOpenedDir="/home/okuboali/nattaon_ws/_0room_dataset/beike/beike-ply/aligned/histograme";
     //currentlyOpenedDir=QString("../labeltest");
-    currentlyOpenedDir="/home/nattaon/ply/aligned-beike/histograme";
+    //currentlyOpenedDir="/home/nattaon/ply/aligned-beike/histograme";
+    //currentlyOpenedDir="/home/okuboali/nattaon_ws2/sceneNN_histograme/histograme";
+    currentlyOpenedDir = "/home/okuboali/nattaon_ws/_0room_dataset/Stanford_ply_voxel05/histograme_v02";
     ui->foldername_lineEdit->setText(currentlyOpenedDir);
     ListImgInFolder();
 
     isLineWidgetEditable=false;
     dstate=none;
     isLoadingLabel=false;
+    lineConnectMode=false;
     //dstate=start;
     zoomFactor=1.0;
 
     currentSelectingImageIndex=-1;
     currentSelectingLineIndex=-1;
+    LineIndex1_to_connect=-1;
 
     ui->lines_treeWidget->header()->resizeSection(0, 60);
     ui->lines_treeWidget->header()->resizeSection(1, 45);
@@ -81,6 +86,19 @@ void MainWindow::resizeEvent(QResizeEvent *e)
 {
     //undoView->move(e->size().width(),undoView->y());
     qDebug() << "resize window " << e->size().width() << "*" << e->size().height();
+    int widget_height = ( e->size().height() - ui->widget_tools->height())/2;
+
+    ui->files_treeWidget->move(10,0);
+    ui->files_treeWidget->resize(ui->files_treeWidget->width(),widget_height-30);
+
+    ui->widget_tools->move(10,ui->files_treeWidget->geometry().bottom());
+
+    ui->lines_treeWidget->move(10,ui->widget_tools->geometry().bottom());
+    ui->lines_treeWidget->resize(ui->lines_treeWidget->width(),widget_height-30);
+
+    int foldername_width = e->size().width() - ui->foldername_lineEdit->geometry().left() -30;
+    ui->foldername_lineEdit->resize(foldername_width, ui->foldername_lineEdit->height());
+
     //
     QPoint p = ui->scrollArea->geometry().topLeft();
     int newwidth = e->size().width()-p.x()-30;
@@ -668,7 +686,7 @@ void MainWindow::Button_generatelabel_clicked()
 
                 //QPainter painter(&pixmap);
                 QPainter *painter = new QPainter(&pixmap);
-                painter->setRenderHint( QPainter::Antialiasing );
+                //painter->setRenderHint( QPainter::Antialiasing );// this made the lind fading
                 QPen myPen(Qt::white, 1, Qt::SolidLine);
                 painter->setPen(myPen);
                 painter->drawLine(ix1,iy1,ix2,iy2);
@@ -676,7 +694,7 @@ void MainWindow::Button_generatelabel_clicked()
                 //QString imgnameonly = imagename.section('/',-1,-1);
                 QString outputpath= path + QDir::separator() + imagename.section('/',-1,-1);
                 qDebug() << outputpath;
-                pixmap.save(outputpath);
+                pixmap.save(outputpath,"PNG",100);
 
 
                 line = in.readLine();
@@ -1029,7 +1047,14 @@ void MainWindow::on_bt_dup_label_clicked()
 
 void MainWindow::on_lines_treeWidget_itemClicked(QTreeWidgetItem *item, int column)
 {
+
     isLineWidgetEditable=true;
+    if(lineConnectMode == true)
+    {
+        //qDebug() << "LineIndex2_to_connect = " << currentSelectingLineIndex;
+        ConnectLines(LineIndex1_to_connect,currentSelectingLineIndex);
+
+    }
 }
 
 void MainWindow::on_pushButton_clicked()
@@ -1076,4 +1101,127 @@ void MainWindow::on_bt_delete_label_clicked()
 
 
 
+}
+
+void MainWindow::on_bt_straight_line_clicked()
+{
+    QTreeWidgetItem* selected_line = ui->lines_treeWidget->currentItem();
+    int x1=selected_line->text(0).toInt();
+    int y1=selected_line->text(1).toInt();
+    int x2=selected_line->text(2).toInt();
+    int y2=selected_line->text(3).toInt();
+
+    diffx = qFabs(x1-x2);
+    diffy = qFabs(y1-y2);
+
+    if(diffx ==0 || diffy ==0)
+    {
+        // the line is straight
+        return;
+    }
+    else if(diffx > diffy)
+    {// y is a small number (slant)
+        y1=y2;
+    }
+    else if(diffy > diffx)
+    {// x is a small number (slant)
+        x1=x2;
+    }
+    selected_line->setText(0, QString::number(x1));
+    selected_line->setText(1, QString::number(y1));
+    selected_line->setText(2, QString::number(x2));
+    selected_line->setText(3, QString::number(y2));
+
+    //qDebug() << "straighten " << selected_line->text(0) << "," <<selected_line->text(1)
+    //         << "," << selected_line->text(2) <<"," <<selected_line->text(3);
+}
+
+void MainWindow::on_bt_connect_lines_clicked()
+{
+    if(currentSelectingLineIndex==-1) return;
+
+    //QTreeWidgetItem* selected_line = ui->lines_treeWidget->currentItem();
+    //int x1=selected_line->text(0).toInt();
+    //int y1=selected_line->text(1).toInt();
+    //int x2=selected_line->text(2).toInt();
+    //int y2=selected_line->text(3).toInt();
+
+
+
+
+    lineConnectMode = !lineConnectMode;
+
+    if (lineConnectMode==true)
+    {
+        ui->bt_connect_lines->setStyleSheet("background-color:grey;");
+        LineIndex1_to_connect=currentSelectingLineIndex;
+        //qDebug() << "LineIndex1_to_connect = " << LineIndex1_to_connect;
+    }
+    else
+    {
+       ui->bt_connect_lines->setStyleSheet("");
+       LineIndex1_to_connect=-1;
+    }
+}
+void MainWindow::ConnectLines(int lineindex1, int lineindex2)
+{
+    lineConnectMode=false;
+    ui->bt_connect_lines->setStyleSheet("");
+    LineIndex1_to_connect=-1;
+
+    if(lineindex1==lineindex2) return;
+    if(lineindex1 == -1 || lineindex2 == -1) return;
+
+    QTreeWidgetItem* item1 = ui->lines_treeWidget->topLevelItem(lineindex1);
+    QTreeWidgetItem* item2 = ui->lines_treeWidget->topLevelItem(lineindex2);
+
+    QLineF l1,l2;
+    l1.setP1(QPointF(item1->text(0).toInt(),item1->text(1).toInt()));
+    l1.setP2(QPointF(item1->text(2).toInt(),item1->text(3).toInt()));
+    l2.setP1(QPointF(item2->text(0).toInt(),item2->text(1).toInt()));
+    l2.setP2(QPointF(item2->text(2).toInt(),item2->text(3).toInt()));
+
+    QPointF intersect;
+    l1.intersect(l2,&intersect);
+    //qDebug() << "intersect " << intersect;
+    //qDebug() << "l1 " << l1.p1() << l1.p2();
+    //qDebug() << "l2 " << l2.p1() << l2.p2();
+
+    if(intersect.x() < 0 || intersect.y() <0)
+    {
+        qDebug() << "intersect error " << intersect;
+        return;
+    }
+    float dist_to_l1p1 = qPow(l1.p1().x()-intersect.x(),2) + qPow(l1.p1().y()-intersect.y(),2);
+    float dist_to_l1p2 = qPow(l1.p2().x()-intersect.x(),2) + qPow(l1.p2().y()-intersect.y(),2);
+    float dist_to_l2p1 = qPow(l2.p1().x()-intersect.x(),2) + qPow(l2.p1().y()-intersect.y(),2);
+    float dist_to_l2p2 = qPow(l2.p2().x()-intersect.x(),2) + qPow(l2.p2().y()-intersect.y(),2);
+
+    //qDebug() << "dist_to_l1p1 " << dist_to_l1p1;
+    //qDebug() << "dist_to_l1p2 " << dist_to_l1p2;
+    //qDebug() << "dist_to_l2p1 " << dist_to_l2p1;
+    //qDebug() << "dist_to_l2p2 " << dist_to_l2p2;
+
+
+    if(dist_to_l1p1 < dist_to_l1p2)
+    {//move line1 p1 to the intersect point
+        item1->setText(0, QString::number(intersect.x()));
+        item1->setText(1, QString::number(intersect.y()));
+    }
+    else if(dist_to_l1p1 > dist_to_l1p2)
+    {//move line1 p2 to the intersect point
+        item1->setText(2, QString::number(intersect.x()));
+        item1->setText(3, QString::number(intersect.y()));
+    }
+
+    if(dist_to_l2p1 < dist_to_l2p2)
+    {//move line2 p1 to the intersect point
+        item2->setText(0, QString::number(intersect.x()));
+        item2->setText(1, QString::number(intersect.y()));
+    }
+    else if(dist_to_l2p1 > dist_to_l2p2)
+    {//move line2 p2 to the intersect point
+        item2->setText(2, QString::number(intersect.x()));
+        item2->setText(3, QString::number(intersect.y()));
+    }
 }

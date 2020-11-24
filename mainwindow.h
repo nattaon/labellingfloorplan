@@ -10,6 +10,7 @@
 #include <QImageReader>
 #include <QtWidgets>
 #include <QtMath>
+#include <QLineF>
 
 namespace Ui
 {
@@ -35,6 +36,7 @@ private:
     double zoomFactor;
     bool isLineWidgetEditable;
     bool isLoadingLabel;
+    bool lineConnectMode;
 
 
     void ListImgInFolder();
@@ -54,6 +56,7 @@ private:
     void DrawImageLabel_WriteLabelFile_fromWidgetItem();
     void LoadLabelTxtFile(QString filename);
     void Select_last_line();
+    void ConnectLines(int lineindex1, int lineindex2);
 
     bool isconnectScrollbarEvent;
     int x1,y1,x2,y2; // mouse position
@@ -64,6 +67,7 @@ private:
 
     int currentSelectingImageIndex;
     int currentSelectingLineIndex;
+    int LineIndex1_to_connect;
 
     bool isMouseinLabellingArea;
 
@@ -104,6 +108,8 @@ private slots:
     void on_lines_treeWidget_itemClicked(QTreeWidgetItem *item, int column);
     void on_pushButton_clicked();
     void on_bt_delete_label_clicked();
+    void on_bt_straight_line_clicked();
+    void on_bt_connect_lines_clicked();
 };
 
 #endif // MAINWINDOW_H
