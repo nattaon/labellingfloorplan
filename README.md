@@ -1,6 +1,7 @@
 # labellingfloorplan
 A program for labelling wall segments from a topview floorplan image (generated from [Multi-ply-manipulator](https://github.com/nattaon/Multi-ply-manipulator)).
 I use QPainter
+![Screenshot](https://github.com/nattaon/labellingfloorplan/blob/master/labellingfloorplan_ss.png)
 
 ## Instalation
 I use Qt Creator 4.5.2 Based on Qt 5.9.5 (GCC 7.3.0, 64 bit) on Ubuntu 18.04.
