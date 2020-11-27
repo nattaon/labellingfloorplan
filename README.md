@@ -22,12 +22,12 @@ Projects Settings:
 - ui->imageLabel(QLabel) is the main drawing area. I use QPixmap to read an image, QPainter and QPen to draw a line, then call setPixmap() to show the final image. It is nested in ui->scrollArea(QScrollArea), so that we can zoom the image.
 
 Main Functions
-- resizeEvent(): enlarge QScrollArea area to fit the program window whwn it changed. adjust QTreeWidget size and position to fill the window height.
-- eventFilter(): detect mouse position move(TempMarkPixel(), TempDrawLine() 
+- **resizeEvent()**: enlarge QScrollArea area to fit the program window whwn it changed. adjust QTreeWidget size and position to fill the window height.
+- **eventFilter()**: detect mouse position move(TempMarkPixel(), TempDrawLine() 
 and mouse down (SetStartLine(), SetEndLine()) to trigger a label drawing function.
-- TempMarkPixel(): show a red dot at the position of mouse over the image area.
-- TempDrawLine(): show a red line drawn from the previous click position, to the current (moving) mouse position.
+- **TempMarkPixel()**: show a red dot at the position of mouse over the image area.
+- **TempDrawLine()**: show a red line drawn from the previous click position, to the current (moving) mouse position.
 - Once a line was drawn, Add_Line_to_TreeWidget() and Add_Line_to_Textfile() were triggered to keep the line poisiton.
-- Add_Line_to_Textfile(): use QTextStream to write a text file contains x1,y1,x2,y2 positions
-- Add_Line_to_TreeWidget(): add x1,y1,x2,y2 positions to the widget inorder to manipulate the line later.
+- **Add_Line_to_Textfile()**: use QTextStream to write a text file contains x1,y1,x2,y2 positions
+- **Add_Line_to_TreeWidget()**: add x1,y1,x2,y2 positions to the widget inorder to manipulate the line later.
 
