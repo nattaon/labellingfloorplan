@@ -1,7 +1,7 @@
 # labellingfloorplan
 
 Projects Settings:
-- Shadow build: Check
+- Shadow build: ☑
 - Build directory: ./build
 - Custom Process Step: cmake ..
 - Make: make -j12 in /pathtofolder/build
