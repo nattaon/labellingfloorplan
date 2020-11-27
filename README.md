@@ -19,7 +19,7 @@ Projects Settings:
 -j12 is the number of cpu cores. We specify the number to increase the speed of the make process. You can check it by typing `nproc` in the command line
 
 ## Programing detail
-- ui->imageLabel(QLabel) is the main drawing area. I use QPixmap to read an image, QPainter and QPen to draw a line, then call setPixmap() to show the final image. It is nested in ui->scrollArea(QScrollArea), so that we can zoom the image.
+- **ui->imageLabel(QLabel)** is the main drawing area. I use QPixmap to read an image, QPainter and QPen to draw a line, then call setPixmap() to show the final image. It is nested in ui->scrollArea(QScrollArea), so that we can zoom the image.
 
 Main Functions
 - **resizeEvent()**: enlarge QScrollArea area to fit the program window whwn it changed. adjust QTreeWidget size and position to fill the window height.
