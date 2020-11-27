@@ -16,7 +16,7 @@ Projects Settings:
 - Build directory: ./build
 - Custom Process Step: cmake ..
 - Make: make -j12 in /pathtofolder/build
--j12 is the number of cpu cores. We specify the number to increase the speed of the make process. You can check it by typing `nproc` in the command line
+-j12 is the number of cpu cores. Typing `nproc` in the command line to check it. By specifying the number we can increase the speed of the make process.
 
 ## Programing detail
 - **ui->imageLabel(QLabel)** is the main drawing area. I use QPixmap to read an image, QPainter and QPen to draw a line, then call setPixmap() to show the final image. It is nested in ui->scrollArea(QScrollArea), so that we can zoom the image.
