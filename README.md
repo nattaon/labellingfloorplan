@@ -1,5 +1,8 @@
 # labellingfloorplan
 A program for labelling wall segments from a topview floorplan image (generated from [Multi-ply-manipulator](https://github.com/nattaon/Multi-ply-manipulator)).
+<a href="url"><img src="https://github.com/nattaon/labellingfloorplan/blob/master/labellingfloorplan_ss.png" align="left" width="100" ></a>
+
+
 ![Screenshot](https://github.com/nattaon/labellingfloorplan/blob/master/labellingfloorplan_ss.png  | width=50)
 
 ## What it does
