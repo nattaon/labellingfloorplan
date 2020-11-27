@@ -8,8 +8,9 @@ A program for labelling wall segments from a topview floorplan image (generated 
 - Connect/Trim 2 lines at the intersection point.
 - Generate a black-write label (Menu: Label > Generate label) for training in Unet segmentation.
 
-## Instalation
+## Installation
 I use Qt Creator 4.5.2 Based on Qt 5.9.5 (GCC 7.3.0, 64 bit) on Ubuntu 18.04.
+
 Projects Settings:
 - Shadow build: ☑
 - Build directory: ./build
@@ -18,7 +19,7 @@ Projects Settings:
 -j12 is the number of cpu cores. We specify the number to increase the speed of the make process. You can check it by typing `nproc` in the command line
 
 ## Programing detail
-- imageLabel(QLabel) is the main drawing area. I use QPixmap to read an image, QPainter and QPen to draw a line, then call setPixmap() to show the final image. It is nested in QScrollArea for enable image zooming.
+- ui->imageLabel(QLabel) is the main drawing area. I use QPixmap to read an image, QPainter and QPen to draw a line, then call setPixmap() to show the final image. It is nested in ui->scrollArea(QScrollArea), so that we can zoom the image.
 
 Main Functions
 - resizeEvent(): enlarge QScrollArea area to fit the program window whwn it changed. adjust QTreeWidget size and position to fill the window height.
