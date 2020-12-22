@@ -18,20 +18,20 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->openfolder_pushButton, SIGNAL(clicked()), this, SLOT(Button_openfolder_clicked()));
     connect(ui->deleteline_pushButton, SIGNAL(clicked()), this, SLOT(Button_deleteline_clicked()));
-    //connect(ui->ccw_rotation_pushButton, SIGNAL(clicked()), this, SLOT(Button_ccwrotation_clicked()));
-    //connect(ui->cw_rotation_pushButton, SIGNAL(clicked()), this, SLOT(Button_cwrotation_clicked()));
-    //connect(ui->saveimg_pushButton, SIGNAL(clicked()), this, SLOT(Button_saveimg_clicked()));
 
-    connect(ui->files_treeWidget, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(SelectImgFile(QTreeWidgetItem *, int)));
-    connect(ui->lines_treeWidget, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(SelectLine(QTreeWidgetItem *, int)));
+    connect(ui->files_treeWidget, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(SelectImgFile_ShowImgLoadlabel(QTreeWidgetItem *, int)));
+    //connect(ui->lines_treeWidget, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(SelectLine(QTreeWidgetItem *, int)));
     connect(ui->zoom_SpinBox, SIGNAL(valueChanged(double)), this, SLOT(ZoomImage(double)));
 
-    //connect(ui->scrollArea->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(on_scroll_v(int)));
-    //connect(ui->scrollArea->horizontalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(on_scroll_h(int)));
 
     ui->files_treeWidget->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    ui->files_treeWidget->header()->setStretchLastSection(false);
+    ui->files_treeWidget->header()->setStretchLastSection(true);
 
+    ui->lines_treeWidget->setHeaderHidden(false); // Show header of treeWidget
+    ui->lines_treeWidget->header()->resizeSection(0, 60);
+    ui->lines_treeWidget->header()->resizeSection(1, 45);
+    ui->lines_treeWidget->header()->resizeSection(2, 45);
+    //ui->lines_treeWidget->setSelectionMode(QAbstractItemView::ExtendedSelection); // for use ctrl to select multiple item
 
     ui->imageLabel->setBackgroundRole(QPalette::Base);
     ui->imageLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
@@ -47,12 +47,10 @@ MainWindow::MainWindow(QWidget *parent) :
     //ui->imageLabel->installEventFilter(this);
     qApp->installEventFilter(this);
 
-    //currentlyOpenedDir=QDir::currentPath()+QDir::separator()+"labeltest";
-    //currentlyOpenedDir="/home/okuboali/nattaon_ws/_0room_dataset/beike/beike-ply/aligned/histograme";
-    //currentlyOpenedDir=QString("../labeltest");
     //currentlyOpenedDir="/home/nattaon/ply/aligned-beike/histograme";
     //currentlyOpenedDir="/home/okuboali/nattaon_ws2/sceneNN_histograme/histograme";
-    currentlyOpenedDir = "/home/okuboali/nattaon_ws/_0room_dataset/Stanford_ply_voxel05/histograme_v02";
+    currentlyOpenedDir = "/home/okuboali/awork_Dec2020/labellingfloorplan/labeltest";
+    //currentlyOpenedDir = "../labeltest"; // by calling a relative path like this, the labeling file failed to load..
     ui->foldername_lineEdit->setText(currentlyOpenedDir);
     ListImgInFolder();
 
@@ -62,18 +60,17 @@ MainWindow::MainWindow(QWidget *parent) :
     lineConnectMode=false;
     //dstate=start;
     zoomFactor=1.0;
+    isCtrlPress=false;
 
     currentSelectingImageIndex=-1;
     currentSelectingLineIndex=-1;
     LineIndex1_to_connect=-1;
+    ctrl_lock_line_index=-1;
 
-    ui->lines_treeWidget->header()->resizeSection(0, 60);
-    ui->lines_treeWidget->header()->resizeSection(1, 45);
-    ui->lines_treeWidget->header()->resizeSection(2, 45);
 
     //txtfile = new ReadWriteFile();
-    QPoint p = ui->scrollArea->geometry().topLeft();
-    qDebug() << "ui->scrollArea topLeft " << p;
+    //QPoint p = ui->scrollArea->geometry().topLeft();
+    //qDebug() << "ui->scrollArea topLeft " << p;
 
     isMouseinLabellingArea=false;
 
@@ -84,32 +81,49 @@ MainWindow::MainWindow(QWidget *parent) :
 }
 void MainWindow::resizeEvent(QResizeEvent *e)
 {
-    //undoView->move(e->size().width(),undoView->y());
-    qDebug() << "resize window " << e->size().width() << "*" << e->size().height();
-    int widget_height = ( e->size().height() - ui->widget_tools->height())/2;
+    // Enter this function, when the window size is changed.
+
+    //qDebug() << "resize window " << e->size().width() << "*" << e->size().height();
+    int height_of_treewidget = ( e->size().height() - ui->widget_tools->height())/2;
 
     ui->files_treeWidget->move(10,0);
-    ui->files_treeWidget->resize(ui->files_treeWidget->width(),widget_height-30);
+    ui->files_treeWidget->resize(ui->files_treeWidget->width(),height_of_treewidget-30);
 
     ui->widget_tools->move(10,ui->files_treeWidget->geometry().bottom());
 
     ui->lines_treeWidget->move(10,ui->widget_tools->geometry().bottom());
-    ui->lines_treeWidget->resize(ui->lines_treeWidget->width(),widget_height-30);
+    ui->lines_treeWidget->resize(ui->lines_treeWidget->width(),height_of_treewidget-30);
 
     int foldername_width = e->size().width() - ui->foldername_lineEdit->geometry().left() -30;
     ui->foldername_lineEdit->resize(foldername_width, ui->foldername_lineEdit->height());
 
-    //
+
     QPoint p = ui->scrollArea->geometry().topLeft();
     int newwidth = e->size().width()-p.x()-30;
     int newheight = e->size().height()-p.y()-70;
-    qDebug() << "new scollarea size " << newwidth << "*" << newheight;
-    //ui->scrollArea->adjustSize();
     ui->scrollArea->resize(newwidth,newheight);
+    //qDebug() << "new scollarea size " << newwidth << "*" << newheight;
+
 }
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
-
+    if( (dynamic_cast<QKeyEvent*>(event)) && (obj==ui->lines_treeWidget))
+    {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent * >(event);
+        if (keyEvent->key()==Qt::Key_Control && event->type() == QEvent::KeyPress )
+        {
+            qDebug() << " CTRL press !!!";
+            isCtrlPress = true;
+            ctrl_lock_line_index=currentSelectingLineIndex;
+        }
+        else if (keyEvent->key()==Qt::Key_Control && event->type() == QEvent::KeyRelease )
+        {
+            qDebug() << " CTRL release !!!";
+            isCtrlPress = false;
+            //ctrl_lock_line_index=-1;
+        }
+    }
+    //detect mouse click in draawing area
     if( (dynamic_cast<QMouseEvent*>(event)) && (obj==ui->imageLabel))
     {
         isMouseinLabellingArea=true;
@@ -304,7 +318,7 @@ void MainWindow::Button_nextimg_clicked()
     {
         QTreeWidgetItem *item = ui->files_treeWidget->topLevelItem(toSelectImageIndex);
         ui->files_treeWidget->setCurrentItem(item);
-        SelectImgFile(item,0); //item is the row, column=0
+        SelectImgFile_ShowImgLoadlabel(item,0); //item is the row, column=0
     }
 }
 void MainWindow::Button_previmg_clicked()
@@ -316,10 +330,10 @@ void MainWindow::Button_previmg_clicked()
     {
         QTreeWidgetItem *item = ui->files_treeWidget->topLevelItem(toSelectImageIndex);
         ui->files_treeWidget->setCurrentItem(item);
-        SelectImgFile(item,0);
+        SelectImgFile_ShowImgLoadlabel(item,0);
     }
 }
-void MainWindow::SelectImgFile(QTreeWidgetItem *item, int col)
+void MainWindow::SelectImgFile_ShowImgLoadlabel(QTreeWidgetItem *item, int col)
 {
     if(currentSelectingImageIndex == ui->files_treeWidget->currentIndex().row()) //select the current one (same one)
     {
@@ -336,7 +350,8 @@ void MainWindow::SelectImgFile(QTreeWidgetItem *item, int col)
     //QTreeWidgetItem* item = ui->files_treeWidget->currentIndex();
     //QTreeWidgetItem* item = ui->treeWidget->topLevelItem(last_select_item_index);
 
-    QString imagename = currentlyOpenedDir + QDir::separator() + item->text(0);
+    //QString
+    imagename = currentlyOpenedDir + QDir::separator() + item->text(0);
     qDebug() << "select " << imagename;
 
     ui->lines_treeWidget->clear();
@@ -424,7 +439,7 @@ void MainWindow::Add_Line_to_TreeWidget(int px1, int py1, int px2, int py2)
 void MainWindow::SelectLine(QTreeWidgetItem *item, int col)
 {
 
-    //qDebug() << "mousePressEvent " << ui->lines_treeWidget->currentIndex().row();
+    qDebug() << "SelectLine " << ui->lines_treeWidget->currentIndex().row();
     //QTreeWidgetItem* item = ui->files_treeWidget->currentIndex();
     //QTreeWidgetItem* item = ui->treeWidget->topLevelItem(last_select_item_index);
 
@@ -438,7 +453,7 @@ void MainWindow::SelectLine(QTreeWidgetItem *item, int col)
 
 void MainWindow::TempHilightLine(int tx1, int ty1, int tx2, int ty2)
 {
-
+    qDebug() << "TempHilightLine " << tx1, ty1, tx2, ty2;
     tempimage = currentimage;
     //QPainter painter(&tempimage);
     QPainter *painter = new QPainter(&tempimage);
@@ -453,6 +468,32 @@ void MainWindow::TempHilightLine(int tx1, int ty1, int tx2, int ty2)
     diffx = qFabs(tx1-tx2);
     diffy = qFabs(ty1-ty2);
     ui->linewide_label->setText(QString::number(diffx) +", "+ QString::number(diffy));
+
+    //show line angle
+    float angle = Calculate_angle(tx1, ty1, tx2, ty2);
+    ui->lineangle_label->setText(QString::number(angle));
+}
+void MainWindow::TempHilight2ndLine(int tx1, int ty1, int tx2, int ty2)
+{
+    qDebug() << "TempHilight2ndLine " << tx1, ty1, tx2, ty2;
+    //tempimage = currentimage;
+    //QPainter painter(&tempimage);
+    QPainter *painter = new QPainter(&tempimage);
+    QPen myPen(Qt::yellow, 1, Qt::SolidLine);
+    painter->setPen(myPen);
+
+    painter->drawLine(tx1, ty1, tx2, ty2);
+    delete painter;
+    ui->imageLabel->setPixmap(tempimage);
+
+    //show line wide
+    diffx = qFabs(tx1-tx2);
+    diffy = qFabs(ty1-ty2);
+    ui->linewide_label->setText(QString::number(diffx) +", "+ QString::number(diffy));
+
+    //show line angle
+    float angle = Calculate_angle(tx1, ty1, tx2, ty2);
+    ui->lineangle_label->setText(QString::number(angle));
 }
 
 void MainWindow::Button_deleteline_clicked()
@@ -537,9 +578,34 @@ void MainWindow::DrawImageLabel_WriteLabelFile_fromWidgetItem()
     }
 
 }
+void MainWindow::CalcuatePaddedSize(int &width, int &height)
+{
+    float divisor = 32.0;
+    width = qCeil( width / divisor ) * divisor;
+    height = qCeil( height / divisor ) * divisor;
+}
+void MainWindow::CalcuateShowPaddedSize(int imgwidth, int imgheight)
+{
+    int new_w = imgwidth;
+    int new_h = imgheight;
+    CalcuatePaddedSize(new_w,new_h);
+
+    int pad_w = new_w-currentimage.width();
+    int pad_h = new_h-currentimage.height();
+    QString padimgsize = QString("%1 x %2").arg(pad_w).arg(pad_h);
+    ui->paddingsize_label->setText(padimgsize);
+    qDebug() << "padimgsize " << padimgsize;
+
+    int pad_top = pad_h*0.5;
+    int pad_down = pad_h-pad_top;
+    int pad_left = pad_w*0.5;
+    int pad_right = pad_w-pad_left;
+    Set_pad_value(pad_top, pad_down, pad_left, pad_right);
+}
 
 void MainWindow::ShowImage(const QString &fileName)
 {
+    qDebug() << "ShowImage: " << fileName;
     QPixmap img(fileName);
     ui->imageLabel->setPixmap(img);
     ui->imageLabel->adjustSize();
@@ -551,6 +617,10 @@ void MainWindow::ShowImage(const QString &fileName)
 
     QString imgsize = QString("%1 x %2").arg(currentimage.width()).arg(currentimage.height());
     ui->imgsize_label->setText(imgsize);
+
+    CalcuateShowPaddedSize(currentimage.width(), currentimage.height());
+
+
 
     currentSelectingLineIndex=-1;
 
@@ -902,11 +972,23 @@ void MainWindow::on_files_treeWidget_itemSelectionChanged()
     if(SelectingIndex==-1) return;
     QTreeWidgetItem *item = ui->files_treeWidget->topLevelItem(SelectingIndex);
 
-    SelectImgFile(item,0);
+    SelectImgFile_ShowImgLoadlabel(item,0);
 }
 
 void MainWindow::on_lines_treeWidget_itemSelectionChanged()
 {
+    //QModelIndexList indexlist = ui->lines_treeWidget->selectionModel()->selectedRows(); //for multiple selection enable on treewidget
+    //qDebug() <<"indexlist " <<indexlist.count();
+    /*for(int i=0; i< selection.count(); i++)
+    {
+        QModelIndex index = selection.at(i);
+        qDebug() << index.row();
+    }*/
+    //selectionModel()->clearSelection();
+
+
+
+
     int SelectingIndex = ui->lines_treeWidget->currentIndex().row(); //assign a current selecting index
     qDebug() <<"SelectingIndex " <<SelectingIndex;
 
@@ -914,6 +996,18 @@ void MainWindow::on_lines_treeWidget_itemSelectionChanged()
     QTreeWidgetItem *item = ui->lines_treeWidget->topLevelItem(SelectingIndex);
 
     SelectLine(item,0);
+
+    if(isCtrlPress && ctrl_lock_line_index>=0)
+    {
+        QTreeWidgetItem *pitem = ui->lines_treeWidget->topLevelItem(ctrl_lock_line_index);
+        if(!pitem->isSelected())
+        {
+            pitem->setSelected( true );
+            TempHilight2ndLine(pitem->text(0).toInt(),pitem->text(1).toInt(),pitem->text(2).toInt(),pitem->text(3).toInt());
+        }
+
+    }
+
 }
 
 void MainWindow::on_lines_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
@@ -1049,12 +1143,13 @@ void MainWindow::on_lines_treeWidget_itemClicked(QTreeWidgetItem *item, int colu
 {
 
     isLineWidgetEditable=true;
+    /*
     if(lineConnectMode == true)
     {
         //qDebug() << "LineIndex2_to_connect = " << currentSelectingLineIndex;
         ConnectLines(LineIndex1_to_connect,currentSelectingLineIndex);
 
-    }
+    }*/
 }
 
 void MainWindow::on_pushButton_clicked()
@@ -1102,6 +1197,45 @@ void MainWindow::on_bt_delete_label_clicked()
 
 
 }
+float MainWindow::Calculate_angle(int x1,int y1,int x2,int y2)
+{
+    //int u_x = x2-x1;//the current line
+    //int u_y = y2-y1;
+
+    int u_x,u_y,v_x,v_y;
+
+    diffx = qFabs(x1-x2);
+    diffy = qFabs(y1-y2);
+
+    if(diffx ==0 || diffy ==0)
+    {
+        // the line is straight
+        return 0.0;
+    }
+    else if(diffx > diffy)
+    {// y is a small number (slant)
+        v_x = 1; //horizontal line
+        v_y = 0;
+    }
+    else if(diffy > diffx)
+    {// x is a small number (slant)
+        v_x = 0; //vertical line
+        v_y = 1;
+    }
+    else
+    {
+        qDebug() << "error! calculate_angle";
+    }
+    u_x=diffx;
+    u_y=diffy;
+
+    float equa = (u_x*v_x + u_y*v_y) / (qSqrt(u_x*u_x + u_y*u_y) + qSqrt(v_x*v_x + v_y*v_y));
+    float angle = qAcos(equa);
+
+    return angle*180/M_PI; //rad to degree
+
+
+}
 
 void MainWindow::on_bt_straight_line_clicked()
 {
@@ -1146,9 +1280,9 @@ void MainWindow::on_bt_connect_lines_clicked()
     //int x2=selected_line->text(2).toInt();
     //int y2=selected_line->text(3).toInt();
 
+    ConnectLines(ctrl_lock_line_index,currentSelectingLineIndex);
 
-
-
+/*
     lineConnectMode = !lineConnectMode;
 
     if (lineConnectMode==true)
@@ -1161,13 +1295,14 @@ void MainWindow::on_bt_connect_lines_clicked()
     {
        ui->bt_connect_lines->setStyleSheet("");
        LineIndex1_to_connect=-1;
-    }
+    }*/
 }
 void MainWindow::ConnectLines(int lineindex1, int lineindex2)
 {
-    lineConnectMode=false;
-    ui->bt_connect_lines->setStyleSheet("");
-    LineIndex1_to_connect=-1;
+    //lineConnectMode=false;
+    //ui->bt_connect_lines->setStyleSheet("");
+    //LineIndex1_to_connect=-1;
+
 
     if(lineindex1==lineindex2) return;
     if(lineindex1 == -1 || lineindex2 == -1) return;
@@ -1175,11 +1310,16 @@ void MainWindow::ConnectLines(int lineindex1, int lineindex2)
     QTreeWidgetItem* item1 = ui->lines_treeWidget->topLevelItem(lineindex1);
     QTreeWidgetItem* item2 = ui->lines_treeWidget->topLevelItem(lineindex2);
 
-    QLineF l1,l2;
+    QLineF l1,l2;  
     l1.setP1(QPointF(item1->text(0).toInt(),item1->text(1).toInt()));
     l1.setP2(QPointF(item1->text(2).toInt(),item1->text(3).toInt()));
     l2.setP1(QPointF(item2->text(0).toInt(),item2->text(1).toInt()));
     l2.setP2(QPointF(item2->text(2).toInt(),item2->text(3).toInt()));
+
+    hist_p1 = l1;
+    hist_p2 = l2;
+    hist_connect_item1 = lineindex1;
+    hist_connect_item2 = lineindex2;
 
     QPointF intersect;
     l1.intersect(l2,&intersect);
@@ -1197,31 +1337,153 @@ void MainWindow::ConnectLines(int lineindex1, int lineindex2)
     float dist_to_l2p1 = qPow(l2.p1().x()-intersect.x(),2) + qPow(l2.p1().y()-intersect.y(),2);
     float dist_to_l2p2 = qPow(l2.p2().x()-intersect.x(),2) + qPow(l2.p2().y()-intersect.y(),2);
 
-    //qDebug() << "dist_to_l1p1 " << dist_to_l1p1;
-    //qDebug() << "dist_to_l1p2 " << dist_to_l1p2;
-    //qDebug() << "dist_to_l2p1 " << dist_to_l2p1;
-    //qDebug() << "dist_to_l2p2 " << dist_to_l2p2;
+    //qDebug() << "dist^2_to_l1p1 " << dist_to_l1p1;
+    //qDebug() << "dist^2_to_l1p2 " << dist_to_l1p2;
+    //qDebug() << "dist^2_to_l2p1 " << dist_to_l2p1;
+    //qDebug() << "dist^2_to_l2p2 " << dist_to_l2p2;
 
+    intersect.setX(int(intersect.x()));
+    intersect.setY(int(intersect.y()));
 
     if(dist_to_l1p1 < dist_to_l1p2)
-    {//move line1 p1 to the intersect point
+    {//
+        qDebug() <<"move line1 p1 to the intersect point";
         item1->setText(0, QString::number(intersect.x()));
         item1->setText(1, QString::number(intersect.y()));
     }
     else if(dist_to_l1p1 > dist_to_l1p2)
-    {//move line1 p2 to the intersect point
+    {//
+        qDebug() <<"move line1 p2 to the intersect point";
         item1->setText(2, QString::number(intersect.x()));
         item1->setText(3, QString::number(intersect.y()));
     }
 
     if(dist_to_l2p1 < dist_to_l2p2)
-    {//move line2 p1 to the intersect point
+    {//
+        qDebug() <<"move line2 p1 to the intersect point";
         item2->setText(0, QString::number(intersect.x()));
         item2->setText(1, QString::number(intersect.y()));
     }
     else if(dist_to_l2p1 > dist_to_l2p2)
-    {//move line2 p2 to the intersect point
+    {//
+        qDebug() <<"move line2 p2 to the intersect point";
         item2->setText(2, QString::number(intersect.x()));
         item2->setText(3, QString::number(intersect.y()));
     }
+
+    //clear selection
+    //item1->setSelected( false );
+    //item2->setSelected( false );
+    currentSelectingLineIndex=-1;
+    ctrl_lock_line_index=-1;
+}
+
+void MainWindow::on_bt_undo_connect_lines_clicked()
+{
+    if (!hist_p1.isNull())
+    {
+        QTreeWidgetItem* item1 = ui->lines_treeWidget->topLevelItem(hist_connect_item1);
+        item1->setText(0, QString::number(hist_p1.p1().x()));
+        item1->setText(1, QString::number(hist_p1.p1().y()));
+        item1->setText(2, QString::number(hist_p1.p2().x()));
+        item1->setText(3, QString::number(hist_p1.p2().y()));
+        //ConnectLines(ctrl_lock_line_index,currentSelectingLineIndex)
+        hist_p1.setP1(QPointF(0,0));
+        hist_p1.setP2(QPointF(0,0));
+    }
+    if (!hist_p2.isNull())
+    {
+        QTreeWidgetItem* item2 = ui->lines_treeWidget->topLevelItem(hist_connect_item2);
+        item2->setText(0, QString::number(hist_p2.p1().x()));
+        item2->setText(1, QString::number(hist_p2.p1().y()));
+        item2->setText(2, QString::number(hist_p2.p2().x()));
+        item2->setText(3, QString::number(hist_p2.p2().y()));
+        //ConnectLines(ctrl_lock_line_index,currentSelectingLineIndex)
+        hist_p2.setP1(QPointF(0,0));
+        hist_p2.setP2(QPointF(0,0));
+    }
+
+}
+void MainWindow::Set_pad_value(int top, int down, int left, int right)
+{
+    ui->lineEdit_pad_top->setText(QString::number(top));
+    ui->lineEdit_pad_down->setText(QString::number(down));
+    ui->lineEdit_pad_left->setText(QString::number(left));
+    ui->lineEdit_pad_right->setText(QString::number(right));
+}
+void MainWindow::on_bt_pad_top_clicked()
+{
+    int pad = ui->lineEdit_pad_top->text().toInt();
+
+    QPixmap pixmap(rawimage.width(),rawimage.height()+pad);
+    pixmap.fill(Qt::black);
+    QPainter painter(&pixmap);
+    painter.drawPixmap(0,pad,rawimage);
+
+    Save_padding_image_and_reload(pixmap);
+}
+
+void MainWindow::on_bt_pad_down_clicked()
+{
+    int pad = ui->lineEdit_pad_down->text().toInt();
+
+    QPixmap pixmap(rawimage.width(),rawimage.height()+pad);
+    pixmap.fill(Qt::black);
+    QPainter painter(&pixmap);
+    painter.drawPixmap(0,0,rawimage);
+
+    Save_padding_image_and_reload(pixmap);
+}
+
+void MainWindow::on_bt_pad_left_clicked()
+{
+    int pad = ui->lineEdit_pad_left->text().toInt();
+
+    QPixmap pixmap(rawimage.width()+pad,rawimage.height());
+    pixmap.fill(Qt::black);
+    QPainter painter(&pixmap);
+    painter.drawPixmap(0,0,rawimage);
+
+    Save_padding_image_and_reload(pixmap);
+}
+
+void MainWindow::on_bt_pad_right_clicked()
+{
+    int pad = ui->lineEdit_pad_right->text().toInt();
+
+    QPixmap pixmap(rawimage.width()+pad,rawimage.height());
+    pixmap.fill(Qt::black);
+    QPainter painter(&pixmap);
+    painter.drawPixmap(0,pad,rawimage);
+
+    Save_padding_image_and_reload(pixmap);
+}
+void MainWindow::on_bt_pad_all_clicked()
+{
+    int pad_top = ui->lineEdit_pad_top->text().toInt();
+    int pad_down = ui->lineEdit_pad_down->text().toInt();
+    int pad_left = ui->lineEdit_pad_left->text().toInt();
+    int pad_right = ui->lineEdit_pad_right->text().toInt();
+
+    QPixmap pixmap(rawimage.width()+pad_left+pad_right,rawimage.height()+pad_top+pad_down);
+    pixmap.fill(Qt::black);
+    QPainter painter(&pixmap);
+    painter.drawPixmap(pad_left,pad_top,rawimage);
+
+    Save_padding_image_and_reload(pixmap);
+
+
+}
+void MainWindow::Save_padding_image_and_reload(QPixmap pixmap)
+{
+    pixmap.save(imagename,"PNG",100);
+
+    ShowImage(imagename);
+    dstate=start;
+
+    QString txtfilename = imagename.section('.',0,0) + ".txt";
+    qDebug() << "txtfilename " << txtfilename;
+    //txtfile->OpenTxtFileLabel(txtfilename.toStdString());
+    LoadLabelTxtFile(txtfilename);
+
 }

@@ -28,6 +28,7 @@ public:
 private:
     Ui::MainWindow *ui;
     QString currentlyOpenedDir;
+    QString imagename;
     QImage image;
     QPixmap rawimage,tempimage,currentimage;
     //ReadWriteFile *txtfile;
@@ -37,6 +38,7 @@ private:
     bool isLineWidgetEditable;
     bool isLoadingLabel;
     bool lineConnectMode;
+    bool isCtrlPress;
 
 
     void ListImgInFolder();
@@ -49,6 +51,7 @@ private:
     void TempDrawLine(int mousex, int mousey);
     void TempMarkPixel(int mousex, int mouse);
     void TempHilightLine(int tx1, int ty1, int tx2, int ty2);
+    void TempHilight2ndLine(int tx1, int ty1, int tx2, int ty2);
     void print_scrollbar_value();
     void Add_Line_to_TreeWidget(int px1, int py1, int px2, int py2);
     void Add_Line_to_Textfile(int px1, int py1, int px2, int py2);
@@ -57,6 +60,11 @@ private:
     void LoadLabelTxtFile(QString filename);
     void Select_last_line();
     void ConnectLines(int lineindex1, int lineindex2);
+    void CalcuatePaddedSize(int &width, int &height);
+    void CalcuateShowPaddedSize(int width, int height);
+    float Calculate_angle(int x1,int y1,int x2,int y2);
+    void Set_pad_value(int top, int down, int left, int right);
+    void Save_padding_image_and_reload(QPixmap pixmap);
 
     bool isconnectScrollbarEvent;
     int x1,y1,x2,y2; // mouse position
@@ -68,8 +76,11 @@ private:
     int currentSelectingImageIndex;
     int currentSelectingLineIndex;
     int LineIndex1_to_connect;
+    int ctrl_lock_line_index;
 
     bool isMouseinLabellingArea;
+    QLineF hist_p1,hist_p2;
+    int hist_connect_item1,hist_connect_item2;
 
 
 private slots:
@@ -85,7 +96,7 @@ private slots:
     void Button_cwrotation_clicked();
     void Button_saveimg_clicked();
 
-    void SelectImgFile(QTreeWidgetItem *item, int col);
+    void SelectImgFile_ShowImgLoadlabel(QTreeWidgetItem *item, int col);
     void SelectLine(QTreeWidgetItem *item, int col);
 
     void ZoomImage(double f);
@@ -110,6 +121,12 @@ private slots:
     void on_bt_delete_label_clicked();
     void on_bt_straight_line_clicked();
     void on_bt_connect_lines_clicked();
+    void on_bt_undo_connect_lines_clicked();
+    void on_bt_pad_top_clicked();
+    void on_bt_pad_down_clicked();
+    void on_bt_pad_left_clicked();
+    void on_bt_pad_right_clicked();
+    void on_bt_pad_all_clicked();
 };
 
 #endif // MAINWINDOW_H
