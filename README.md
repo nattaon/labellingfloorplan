@@ -1,12 +1,13 @@
 # labellingfloorplan
 A program for labelling wall segments from a topview floorplan image (generated from [Multi-ply-manipulator](https://github.com/nattaon/Multi-ply-manipulator)).
-<a href="url"><img src="https://github.com/nattaon/labellingfloorplan/blob/master/labellingfloorplan_ss.png"  width="500" ></a>
+<a href="url"><img src="https://github.com/nattaon/labellingfloorplan/blob/master/labellingfloorplan_ss2.png"  width="500" ></a>
 
 ## What it does
 - Draw a line label, automatic save .txt for each image.
 - Straigh a line horizontal or vertical.
 - Connect/Trim 2 lines at the intersection point.
 - Generate a black-write label (Menu: Label > Generate label) for training in Unet segmentation.
+- Padding image.
 
 ## Installation
 I use Qt Creator 4.5.2 Based on Qt 5.9.5 (GCC 7.3.0, 64 bit) on Ubuntu 18.04.
