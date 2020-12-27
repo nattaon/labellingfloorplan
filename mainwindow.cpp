@@ -1420,6 +1420,9 @@ void MainWindow::on_bt_pad_top_clicked()
     QPainter painter(&pixmap);
     painter.drawPixmap(0,pad,rawimage);
 
+    if(ui->padlabel_checkBox->isChecked())
+        PaddingAllLabel(pad, 0, 0, 0);
+
     Save_padding_image_and_reload(pixmap);
 }
 
@@ -1432,6 +1435,7 @@ void MainWindow::on_bt_pad_down_clicked()
     QPainter painter(&pixmap);
     painter.drawPixmap(0,0,rawimage);
 
+
     Save_padding_image_and_reload(pixmap);
 }
 
@@ -1442,7 +1446,10 @@ void MainWindow::on_bt_pad_left_clicked()
     QPixmap pixmap(rawimage.width()+pad,rawimage.height());
     pixmap.fill(Qt::black);
     QPainter painter(&pixmap);
-    painter.drawPixmap(0,0,rawimage);
+    painter.drawPixmap(pad,0,rawimage);
+
+    if(ui->padlabel_checkBox->isChecked())
+        PaddingAllLabel(0, 0, pad, 0);
 
     Save_padding_image_and_reload(pixmap);
 }
@@ -1454,7 +1461,8 @@ void MainWindow::on_bt_pad_right_clicked()
     QPixmap pixmap(rawimage.width()+pad,rawimage.height());
     pixmap.fill(Qt::black);
     QPainter painter(&pixmap);
-    painter.drawPixmap(0,pad,rawimage);
+    painter.drawPixmap(0,0,rawimage);
+
 
     Save_padding_image_and_reload(pixmap);
 }
@@ -1470,10 +1478,51 @@ void MainWindow::on_bt_pad_all_clicked()
     QPainter painter(&pixmap);
     painter.drawPixmap(pad_left,pad_top,rawimage);
 
+    if(ui->padlabel_checkBox->isChecked())
+        PaddingAllLabel(pad_top, pad_down, pad_left, pad_right);
+
     Save_padding_image_and_reload(pixmap);
 
 
 }
+void MainWindow::PaddingAllLabel(int pad_top, int pad_down, int pad_left, int pad_right)
+{
+    //pad down and pad right no need for padding the label
+
+    int totallines = ui->lines_treeWidget->topLevelItemCount();
+    qDebug() << "PaddingAllLabel " << pad_top << pad_down <<  pad_left <<pad_right;
+
+    if(totallines==0)
+    {
+        //ui->imageLabel->setPixmap(currentimage);
+        return;
+    }
+    for (int i = 0; i < totallines; ++i)
+    {
+        QTreeWidgetItem *item = ui->lines_treeWidget->topLevelItem(i);
+        //item->setText(0, QString::number(i + 1));
+        int px1 = item->text(0).toInt();
+        int py1 = item->text(1).toInt();
+        int px2 = item->text(2).toInt();
+        int py2 = item->text(3).toInt();
+
+        qDebug() << i << " : " << px1 << py1 << px2 << py2;
+        px1=px1+pad_left;
+        py1=py1+pad_top;
+        px2=px2+pad_left;
+        py2=py2+pad_top;
+        qDebug() << i << " : " << px1 << py1 << px2 << py2 <<"\n";
+
+        item->setText(0, QString::number(px1));
+        item->setText(1, QString::number(py1));
+        item->setText(2, QString::number(px2));
+        item->setText(3, QString::number(py2));
+
+    }
+
+
+}
+
 void MainWindow::Save_padding_image_and_reload(QPixmap pixmap)
 {
     pixmap.save(imagename,"PNG",100);
@@ -1481,9 +1530,14 @@ void MainWindow::Save_padding_image_and_reload(QPixmap pixmap)
     ShowImage(imagename);
     dstate=start;
 
+
+
     QString txtfilename = imagename.section('.',0,0) + ".txt";
     qDebug() << "txtfilename " << txtfilename;
     //txtfile->OpenTxtFileLabel(txtfilename.toStdString());
-    LoadLabelTxtFile(txtfilename);
+    //LoadLabelTxtFile(txtfilename);
+
+    Delete_Textfile();
+    DrawImageLabel_WriteLabelFile_fromWidgetItem();
 
 }

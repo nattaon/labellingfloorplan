@@ -65,6 +65,7 @@ private:
     float Calculate_angle(int x1,int y1,int x2,int y2);
     void Set_pad_value(int top, int down, int left, int right);
     void Save_padding_image_and_reload(QPixmap pixmap);
+    void PaddingAllLabel(int pad_top, int pad_down, int pad_left, int pad_right);
 
     bool isconnectScrollbarEvent;
     int x1,y1,x2,y2; // mouse position
