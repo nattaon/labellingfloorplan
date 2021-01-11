@@ -49,7 +49,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //currentlyOpenedDir="/home/nattaon/ply/aligned-beike/histograme";
     //currentlyOpenedDir="/home/okuboali/nattaon_ws2/sceneNN_histograme/histograme";
-    currentlyOpenedDir = "/home/okuboali/awork_Dec2020/labellingfloorplan/labeltest";
+    currentlyOpenedDir = "/home/okuboali/awork_Dec2020/histograme_sceneNNv02";
     //currentlyOpenedDir = "../labeltest"; // by calling a relative path like this, the labeling file failed to load..
     ui->foldername_lineEdit->setText(currentlyOpenedDir);
     ListImgInFolder();
@@ -107,7 +107,7 @@ void MainWindow::resizeEvent(QResizeEvent *e)
 }
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
-    if( (dynamic_cast<QKeyEvent*>(event)) && (obj==ui->lines_treeWidget))
+    if( (dynamic_cast<QKeyEvent*>(event)))// && (obj==ui->lines_treeWidget))
     {
         QKeyEvent *keyEvent = static_cast<QKeyEvent * >(event);
         if (keyEvent->key()==Qt::Key_Control && event->type() == QEvent::KeyPress )
@@ -123,12 +123,16 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
             //ctrl_lock_line_index=-1;
         }
     }
+
     //detect mouse click in draawing area
     if( (dynamic_cast<QMouseEvent*>(event)) && (obj==ui->imageLabel))
     {
         isMouseinLabellingArea=true;
 
+        QKeyEvent *keyEvent = static_cast<QKeyEvent * >(event);
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+
+
         int mousex=mouseEvent->pos().x();
         int mousey=mouseEvent->pos().y();
 
@@ -140,7 +144,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         switch(dstate)
         {
             case none: break;
-            case start: ui->mousepos_label->setText("start"); TempMarkPixel(mousex,mousey);  ui->x1y1_label->setText(mouseposition); break;
+            case start: ui->mousepos_label->setText("start");  ui->x1y1_label->setText(mouseposition); break; //TempMarkPixel(mousex,mousey);
             case end : ui->mousepos_label->setText("end");  TempDrawLine(mousex,mousey); ui->x2y2_label->setText(mouseposition); break;
         }
         //qDebug() << "current draw state: " << dstate;
@@ -151,6 +155,24 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
             //QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
             qDebug()<< obj->metaObject()->className() << ", clicked at " << mousex << "," << mousey;
             isLineWidgetEditable=false;
+
+            // click a mouse when overlay on a line
+            if(mouse_overlay_on_line!=-1)
+            {
+                qDebug()<< "Click on item " << mouse_overlay_on_line;
+
+                QTreeWidgetItem* item = ui->lines_treeWidget->topLevelItem(mouse_overlay_on_line);
+                ui->lines_treeWidget->setCurrentItem(item);
+                mouse_overlay_on_line=-1;
+                //QTreeWidgetItem *item = ui->plyfiles_treeWidget->topLevelItem(currentSelectingPlyIndex);
+                //ui->lines_treeWidget->currentIndex().row()
+                //item->setSelected(true);
+                //on_lines_treeWidget_itemClicked(item,0);
+
+                int SelectingIndex = ui->lines_treeWidget->currentIndex().row(); //assign a current selecting index
+                qDebug() <<"MouseButtonPress SelectingIndex " <<SelectingIndex << ", " <<currentSelectingLineIndex;
+                return false;
+            }
 
 
             switch(dstate)
@@ -170,11 +192,52 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
             }
 
         }
+        else
+        {
+            //int x=mousex; //
+            int x = (int)round(mousex/zoomFactor);
+            //int y=mousey;
+            int y = (int)round(mousey/zoomFactor);
+            double error =0.1;
+
+            int totallines = ui->lines_treeWidget->topLevelItemCount();
+            for (int i = 0; i < totallines; ++i)
+            {
+                QTreeWidgetItem *item = ui->lines_treeWidget->topLevelItem(i);
+                //item->setText(0, QString::number(i + 1));
+                int x1 = item->text(0).toInt();
+                int y1 = item->text(1).toInt();
+                int x2 = item->text(2).toInt();
+                int y2 = item->text(3).toInt();
+
+                double AB = sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1));
+                double AP = sqrt((x-x1)*(x-x1)+(y-y1)*(y-y1));
+                double PB = sqrt((x2-x)*(x2-x)+(y2-y)*(y2-y));
+                //
+
+                if(AP + PB - error < AB && AB< AP + PB + error && mouse_overlay_on_line!=i)
+                {
+                    TempHilightLine(x1,y1,x2,y2);
+                    mouse_overlay_on_line=i;
+                    //qDebug() <<"overlay at line" << mouse_overlay_on_line << " . AB  is " << AB << ", AP=" << AP << ", PB=" <<PB;
+                    return false;
+                    //qDebug() << " Point   " << x << y << "is on line " <<x1 <<y1<<x2<<y2;
+                }
+                else
+                {
+                    mouse_overlay_on_line=-1;
+                    //qDebug() << "AB  is " << AB << ", AP=" << AP << ", PB=" <<PB;
+                }
+            }
+        }
     }
 
 
   return false;
 }
+
+
+
 void MainWindow::TempMarkPixel(int mousex, int mousey)
 {
     tempimage = currentimage;
@@ -609,8 +672,10 @@ void MainWindow::ShowImage(const QString &fileName)
     QPixmap img(fileName);
     ui->imageLabel->setPixmap(img);
     ui->imageLabel->adjustSize();
-    ui->zoom_SpinBox->setValue(1.0);
-    ZoomImage(1.0);
+
+    double currentzoom = ui->zoom_SpinBox->value();
+    ui->zoom_SpinBox->setValue(currentzoom);
+    ZoomImage(currentzoom);
     rawimage=img;
     currentimage=img;
 
@@ -990,7 +1055,7 @@ void MainWindow::on_lines_treeWidget_itemSelectionChanged()
 
 
     int SelectingIndex = ui->lines_treeWidget->currentIndex().row(); //assign a current selecting index
-    qDebug() <<"SelectingIndex " <<SelectingIndex;
+    qDebug() <<"on_lines_treeWidget_itemSelectionChanged SelectingIndex " <<SelectingIndex;
 
     if(SelectingIndex==-1) return;
     QTreeWidgetItem *item = ui->lines_treeWidget->topLevelItem(SelectingIndex);
@@ -999,6 +1064,7 @@ void MainWindow::on_lines_treeWidget_itemSelectionChanged()
 
     if(isCtrlPress && ctrl_lock_line_index>=0)
     {
+
         QTreeWidgetItem *pitem = ui->lines_treeWidget->topLevelItem(ctrl_lock_line_index);
         if(!pitem->isSelected())
         {
@@ -1302,6 +1368,8 @@ void MainWindow::ConnectLines(int lineindex1, int lineindex2)
     //lineConnectMode=false;
     //ui->bt_connect_lines->setStyleSheet("");
     //LineIndex1_to_connect=-1;
+    isLineWidgetEditable= true;
+    qDebug() << "ConnectLines " <<lineindex1 << lineindex2;
 
 
     if(lineindex1==lineindex2) return;
@@ -1347,26 +1415,26 @@ void MainWindow::ConnectLines(int lineindex1, int lineindex2)
 
     if(dist_to_l1p1 < dist_to_l1p2)
     {//
-        qDebug() <<"move line1 p1 to the intersect point";
+        qDebug() <<"move line1 (" << lineindex1 << ") p1 to the intersect point" << intersect;
         item1->setText(0, QString::number(intersect.x()));
         item1->setText(1, QString::number(intersect.y()));
     }
     else if(dist_to_l1p1 > dist_to_l1p2)
     {//
-        qDebug() <<"move line1 p2 to the intersect point";
+        qDebug() <<"move line1 (" << lineindex1 << ")p2 to the intersect point" << intersect;
         item1->setText(2, QString::number(intersect.x()));
         item1->setText(3, QString::number(intersect.y()));
     }
 
     if(dist_to_l2p1 < dist_to_l2p2)
     {//
-        qDebug() <<"move line2 p1 to the intersect point";
+        qDebug() <<"move line2 (" << lineindex2 << ")p1 to the intersect point" << intersect;
         item2->setText(0, QString::number(intersect.x()));
         item2->setText(1, QString::number(intersect.y()));
     }
     else if(dist_to_l2p1 > dist_to_l2p2)
     {//
-        qDebug() <<"move line2 p2 to the intersect point";
+        qDebug() <<"move line2 (" << lineindex2 << ")p2 to the intersect point" << intersect;
         item2->setText(2, QString::number(intersect.x()));
         item2->setText(3, QString::number(intersect.y()));
     }
@@ -1540,4 +1608,36 @@ void MainWindow::Save_padding_image_and_reload(QPixmap pixmap)
     Delete_Textfile();
     DrawImageLabel_WriteLabelFile_fromWidgetItem();
 
+}
+
+
+
+void MainWindow::on_actionConnect_Lines_triggered()
+{
+    on_bt_connect_lines_clicked();
+}
+
+void MainWindow::on_actionDuplicate_Label_txt_triggered()
+{
+    on_bt_dup_label_clicked();
+}
+
+void MainWindow::on_actionMove_line_1_px_to_right_triggered()
+{
+    on_bt_x_plus_clicked();
+}
+
+void MainWindow::on_actionMove_line_1_px_to_left_triggered()
+{
+    on_bt_x_minus_clicked();
+}
+
+void MainWindow::on_actionMove_line_1_px_to_top_triggered()
+{
+    on_bt_y_minus_clicked();
+}
+
+void MainWindow::on_actionMove_line_1_px_to_down_triggered()
+{
+    on_bt_y_plus_clicked();
 }

@@ -723,6 +723,12 @@
      <string>Shortcut</string>
     </property>
     <addaction name="actionSee_shortcut"/>
+    <addaction name="actionConnect_Lines"/>
+    <addaction name="actionDuplicate_Label_txt"/>
+    <addaction name="actionMove_line_1_px_to_right"/>
+    <addaction name="actionMove_line_1_px_to_left"/>
+    <addaction name="actionMove_line_1_px_to_top"/>
+    <addaction name="actionMove_line_1_px_to_down"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuLabel"/>
@@ -823,6 +829,54 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+D</string>
+   </property>
+  </action>
+  <action name="actionConnect_Lines">
+   <property name="text">
+    <string>Connect Lines</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="actionDuplicate_Label_txt">
+   <property name="text">
+    <string>Duplicate Label txt</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+D</string>
+   </property>
+  </action>
+  <action name="actionMove_line_1_px_to_right">
+   <property name="text">
+    <string>Move line 1 px to right</string>
+   </property>
+   <property name="shortcut">
+    <string>D</string>
+   </property>
+  </action>
+  <action name="actionMove_line_1_px_to_left">
+   <property name="text">
+    <string>Move line 1 px to left</string>
+   </property>
+   <property name="shortcut">
+    <string>A</string>
+   </property>
+  </action>
+  <action name="actionMove_line_1_px_to_top">
+   <property name="text">
+    <string>Move line 1 px to top</string>
+   </property>
+   <property name="shortcut">
+    <string>W</string>
+   </property>
+  </action>
+  <action name="actionMove_line_1_px_to_down">
+   <property name="text">
+    <string>Move line 1 px to down</string>
+   </property>
+   <property name="shortcut">
+    <string>S</string>
    </property>
   </action>
  </widget>

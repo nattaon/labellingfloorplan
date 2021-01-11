@@ -73,6 +73,7 @@ private:
     int diffx,diffy;
     enum drawlinestate { none, start, end };
     drawlinestate dstate = none;
+    int mouse_overlay_on_line;
 
     int currentSelectingImageIndex;
     int currentSelectingLineIndex;
@@ -128,6 +129,12 @@ private slots:
     void on_bt_pad_left_clicked();
     void on_bt_pad_right_clicked();
     void on_bt_pad_all_clicked();
+    void on_actionConnect_Lines_triggered();
+    void on_actionDuplicate_Label_txt_triggered();
+    void on_actionMove_line_1_px_to_right_triggered();
+    void on_actionMove_line_1_px_to_left_triggered();
+    void on_actionMove_line_1_px_to_top_triggered();
+    void on_actionMove_line_1_px_to_down_triggered();
 };
 
 #endif // MAINWINDOW_H
