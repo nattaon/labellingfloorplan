@@ -11,6 +11,7 @@
 #include <QtWidgets>
 #include <QtMath>
 #include <QLineF>
+#include <QFileInfo>
 
 namespace Ui
 {
@@ -135,6 +136,10 @@ private slots:
     void on_actionMove_line_1_px_to_left_triggered();
     void on_actionMove_line_1_px_to_top_triggered();
     void on_actionMove_line_1_px_to_down_triggered();
+    void on_actionPad_image_all_direction_triggered();
+    void on_actionPadd_All_lebel_in_folder_triggered();
+    void on_actionRead_me_triggered();
+    void on_bt_select_label_clicked();
 };
 
 #endif // MAINWINDOW_H

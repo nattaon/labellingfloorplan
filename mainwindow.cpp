@@ -149,30 +149,14 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         }
         //qDebug() << "current draw state: " << dstate;
 
-
+        // When mouse is clicked on the image
         if (event->type() == QEvent::MouseButtonPress)
         {
             //QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
             qDebug()<< obj->metaObject()->className() << ", clicked at " << mousex << "," << mousey;
             isLineWidgetEditable=false;
 
-            // click a mouse when overlay on a line
-            if(mouse_overlay_on_line!=-1)
-            {
-                qDebug()<< "Click on item " << mouse_overlay_on_line;
 
-                QTreeWidgetItem* item = ui->lines_treeWidget->topLevelItem(mouse_overlay_on_line);
-                ui->lines_treeWidget->setCurrentItem(item);
-                mouse_overlay_on_line=-1;
-                //QTreeWidgetItem *item = ui->plyfiles_treeWidget->topLevelItem(currentSelectingPlyIndex);
-                //ui->lines_treeWidget->currentIndex().row()
-                //item->setSelected(true);
-                //on_lines_treeWidget_itemClicked(item,0);
-
-                int SelectingIndex = ui->lines_treeWidget->currentIndex().row(); //assign a current selecting index
-                qDebug() <<"MouseButtonPress SelectingIndex " <<SelectingIndex << ", " <<currentSelectingLineIndex;
-                return false;
-            }
 
 
             switch(dstate)
@@ -215,13 +199,19 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
                 double PB = sqrt((x2-x)*(x2-x)+(y2-y)*(y2-y));
                 //
 
-                if(AP + PB - error < AB && AB< AP + PB + error && mouse_overlay_on_line!=i)
+                if(AP + PB - error < AB && AB< AP + PB + error)
                 {
-                    TempHilightLine(x1,y1,x2,y2);
-                    mouse_overlay_on_line=i;
-                    //qDebug() <<"overlay at line" << mouse_overlay_on_line << " . AB  is " << AB << ", AP=" << AP << ", PB=" <<PB;
+                    if(mouse_overlay_on_line!=i) //hiligh a new line
+                    {
+                        TempHilightLine(x1,y1,x2,y2);
+                        mouse_overlay_on_line=i;
+
+                        QTreeWidgetItem* item = ui->lines_treeWidget->topLevelItem(mouse_overlay_on_line);
+                        ui->lines_treeWidget->setCurrentItem(item);
+                    }
+
                     return false;
-                    //qDebug() << " Point   " << x << y << "is on line " <<x1 <<y1<<x2<<y2;
+
                 }
                 else
                 {
@@ -426,6 +416,12 @@ void MainWindow::SelectImgFile_ShowImgLoadlabel(QTreeWidgetItem *item, int col)
     qDebug() << "txtfilename " << txtfilename;
     //txtfile->OpenTxtFileLabel(txtfilename.toStdString());
     LoadLabelTxtFile(txtfilename);
+
+    //Assign base label txt for duplicate
+    QString basefile_to_duplicate = item->text(0).section('_',0,-2)+"_00.txt";
+    // "005_color_a_00.png".section('_',0,-1)  -> 005_color_a_00.png
+    // "005_color_a_00.png".section('_',0,-2)  ->  005_color_a
+    ui->lineEdit_reflabelfile->setText(basefile_to_duplicate);
 
 }
 
@@ -1038,6 +1034,8 @@ void MainWindow::on_files_treeWidget_itemSelectionChanged()
     QTreeWidgetItem *item = ui->files_treeWidget->topLevelItem(SelectingIndex);
 
     SelectImgFile_ShowImgLoadlabel(item,0);
+
+
 }
 
 void MainWindow::on_lines_treeWidget_itemSelectionChanged()
@@ -1171,11 +1169,17 @@ void MainWindow::on_bt_dup_label_clicked()
 
     QString imagename = currentlyOpenedDir + QDir::separator() + item->text(0);
     QString current_txtfilename = imagename.section('.',0,0) + ".txt";
-    qDebug() << "-current_txtfilename " << current_txtfilename;
+    //qDebug() << "-current_txtfilename " << current_txtfilename;
 
-    QString file_to_duplicate  = QFileDialog::getOpenFileName(this, "Choose a text to duplicate for "+item->text(0), currentlyOpenedDir,"label(*.txt)");
-    qDebug() << "-file_to_duplicate " << file_to_duplicate;
 
+
+    QString file_to_duplicate = currentlyOpenedDir + QDir::separator() + ui->lineEdit_reflabelfile->text();
+    QFileInfo check_file(file_to_duplicate);
+    if (!check_file.exists())
+    {
+        qDebug() << file_to_duplicate << " is not exist!";
+        return;
+    }
     //QString filePath = QFileDialog::getOpenFileName(this ,
     //                                                QObject::tr("Pdf files"),
     //      "C:/", "books(*.pdf)");
@@ -1541,6 +1545,15 @@ void MainWindow::on_bt_pad_all_clicked()
     int pad_left = ui->lineEdit_pad_left->text().toInt();
     int pad_right = ui->lineEdit_pad_right->text().toInt();
 
+    qDebug() << "on_bt_pad_all_clicked " << pad_top << pad_down <<  pad_left << pad_right;
+
+    if(pad_top == 0 && pad_down == 0 && pad_left == 0 && pad_right == 0)
+    {
+        qDebug() << " padding are 0 0 0 0 do return";
+        return;
+    }
+
+
     QPixmap pixmap(rawimage.width()+pad_left+pad_right,rawimage.height()+pad_top+pad_down);
     pixmap.fill(Qt::black);
     QPainter painter(&pixmap);
@@ -1640,4 +1653,49 @@ void MainWindow::on_actionMove_line_1_px_to_top_triggered()
 void MainWindow::on_actionMove_line_1_px_to_down_triggered()
 {
     on_bt_y_plus_clicked();
+}
+
+void MainWindow::on_actionPad_image_all_direction_triggered()
+{
+    on_bt_pad_all_clicked();
+}
+
+void MainWindow::on_actionPadd_All_lebel_in_folder_triggered()
+{
+    int totalfiles = ui->files_treeWidget->topLevelItemCount();
+    qDebug() << "on_actionPadd_All_lebel_in_folder_triggered totalfiles " << totalfiles;
+
+    if(totalfiles==0) return;
+
+    for (int i = 0; i < totalfiles; i++) // run through each image file show in the widget
+    //for (int i = 14; i < 15; i++)
+    {
+        QTreeWidgetItem *item = ui->files_treeWidget->topLevelItem(i);
+        ui->files_treeWidget->setCurrentItem(item);
+
+        SelectImgFile_ShowImgLoadlabel(item,0);
+        on_bt_pad_all_clicked();
+    }
+}
+
+void MainWindow::on_actionRead_me_triggered()
+{
+    QMessageBox msgbox;
+    QString txt = tr("When overlay a mouse on a line, the line will be automatically selected.\n"
+                     "When press ctrl, the previous selected line will keep.\n"
+                     "Then when the mouse overlay on the second line, you can press ctrl+c to join these 2 lines.\n\n"
+                     "When click on the image area, the mouse position will be keep,\n"
+                     "Then if you move a mouse, a temporary line will be drawn.\n"
+                     "If you click on the image again, a new line will be generated, and added to the line widget on the left.");//.arg(...);
+    msgbox.setText(txt);
+    msgbox.exec();
+}
+
+void MainWindow::on_bt_select_label_clicked()
+{
+    QString file_to_duplicate  = QFileDialog::getOpenFileName(this, "Choose a text to duplicate ", currentlyOpenedDir,"label(*.txt)");
+    file_to_duplicate = file_to_duplicate.section('/',-1,-1);
+
+    ui->lineEdit_reflabelfile->setText(file_to_duplicate);
+
 }
