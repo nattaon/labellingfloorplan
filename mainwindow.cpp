@@ -137,15 +137,28 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         int mousey=mouseEvent->pos().y();
 
         //QString mouseposition = QString("(%1,%2)").arg(mousex).arg(mousey);
-        //ui->mousepos_label->setText(mouseposition);
+        //ui->dstate_label->setText(mouseposition);
         QString mouseposition = QString("%1,%2").arg((int)round(mousex/zoomFactor)).arg((int)round(mousey/zoomFactor));
 
 
         switch(dstate)
         {
-            case none: break;
-            case start: ui->mousepos_label->setText("start");  ui->x1y1_label->setText(mouseposition); break; //TempMarkPixel(mousex,mousey);
-            case end : ui->mousepos_label->setText("end");  TempDrawLine(mousex,mousey); ui->x2y2_label->setText(mouseposition); break;
+            case none:
+                break;
+
+            case start:
+                ui->dstate_label->setText("start");
+                ui->x1y1_label->setText(mouseposition);
+                ui->linewide_label->setText("");
+                ui->lineangle_label->setText("");
+                //TempMarkPixel(mousex,mousey); //no meaning to call this since, a red dot is hindered by the mouse cursor
+                break;
+
+            case end :
+                ui->dstate_label->setText("end");
+                TempDrawLine(mousex,mousey);
+                ui->x2y2_label->setText(mouseposition);
+                break;
         }
         //qDebug() << "current draw state: " << dstate;
 
@@ -165,6 +178,8 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
                 case start: SetStartLine(mousex,mousey); dstate=end;  break;
                 case end :
                 {
+                    ui->x2y2_label->setText("0,0");
+
                     SetEndLine(mousex,mousey); dstate=start;
                     if(ui->drawnext_checkBox->isChecked())
                     {
@@ -238,7 +253,7 @@ void MainWindow::TempMarkPixel(int mousex, int mousey)
     painter->setPen(myPen);
     painter->drawPoint((int)round(mousex/zoomFactor),(int)round(mousey/zoomFactor));
     delete painter;
-    ui->imageLabel->setPixmap(tempimage);
+    //ui->imageLabel->setPixmap(currentimage);
 }
 
 void MainWindow::SetStartLine(int mousex, int mousey)
@@ -267,11 +282,17 @@ void MainWindow::TempDrawLine(int mousex, int mousey)
     QPen myPen(Qt::red, 1, Qt::SolidLine);
     painter->setPen(myPen);
 
-    painter->drawLine(round(x1/zoomFactor), round(y1/zoomFactor), round(mousex/zoomFactor), round(mousey/zoomFactor));
-    //qDebug() << "draw from " << x1 << ","  << y1 << " to " << mousex << "," << mousey;
+    int tx1=round(x1/zoomFactor);
+    int ty1=round(y1/zoomFactor);
+    int tx2=round(mousex/zoomFactor);
+    int ty2=round(mousey/zoomFactor);
+    painter->drawLine(tx1, ty1, tx2, ty2);
+    qDebug() << "draw from " << x1 << ","  << y1 << " to " << mousex << "," << mousey;
 
     delete painter;
     ui->imageLabel->setPixmap(tempimage);
+
+    SetTextLineWideAndAngle(tx1, ty1, tx2, ty2);
 }
 
 void MainWindow::SetEndLine(int mousex, int mousey)
@@ -523,14 +544,7 @@ void MainWindow::TempHilightLine(int tx1, int ty1, int tx2, int ty2)
     delete painter;
     ui->imageLabel->setPixmap(tempimage);
 
-    //show line wide
-    diffx = qFabs(tx1-tx2);
-    diffy = qFabs(ty1-ty2);
-    ui->linewide_label->setText(QString::number(diffx) +", "+ QString::number(diffy));
-
-    //show line angle
-    float angle = Calculate_angle(tx1, ty1, tx2, ty2);
-    ui->lineangle_label->setText(QString::number(angle));
+    SetTextLineWideAndAngle(tx1, ty1, tx2, ty2);
 }
 void MainWindow::TempHilight2ndLine(int tx1, int ty1, int tx2, int ty2)
 {
@@ -545,6 +559,12 @@ void MainWindow::TempHilight2ndLine(int tx1, int ty1, int tx2, int ty2)
     delete painter;
     ui->imageLabel->setPixmap(tempimage);
 
+    SetTextLineWideAndAngle(tx1, ty1, tx2, ty2);
+
+}
+
+void MainWindow::SetTextLineWideAndAngle(int tx1, int ty1, int tx2, int ty2)
+{
     //show line wide
     diffx = qFabs(tx1-tx2);
     diffy = qFabs(ty1-ty2);
@@ -553,6 +573,7 @@ void MainWindow::TempHilight2ndLine(int tx1, int ty1, int tx2, int ty2)
     //show line angle
     float angle = Calculate_angle(tx1, ty1, tx2, ty2);
     ui->lineangle_label->setText(QString::number(angle));
+
 }
 
 void MainWindow::Button_deleteline_clicked()
@@ -902,6 +923,13 @@ MainWindow::~MainWindow()
 void MainWindow::on_actionCancel_line_triggered()
 {
     dstate=start;
+    ui->x1y1_label->setText("0,0");
+    ui->x2y2_label->setText("0,0");
+    ui->linewide_label->setText("");
+    ui->lineangle_label->setText("");
+    //force reset image to previous drawn
+    ui->imageLabel->setPixmap(currentimage);
+
 }
 void MainWindow::Select_last_line()
 {
