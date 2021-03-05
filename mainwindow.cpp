@@ -24,8 +24,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->zoom_SpinBox, SIGNAL(valueChanged(double)), this, SLOT(ZoomImage(double)));
 
 
-    ui->files_treeWidget->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    ui->files_treeWidget->header()->setStretchLastSection(true);
+    //ui->files_treeWidget->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    //ui->files_treeWidget->header()->setStretchLastSection(true);
+    //ui->files_treeWidget->header()->setSectionResizeMode(QHeaderView::Stretch);
+    //ui->files_treeWidget->resizeColumnToContents(0);
 
     ui->lines_treeWidget->setHeaderHidden(false); // Show header of treeWidget
     ui->lines_treeWidget->header()->resizeSection(0, 60);
@@ -47,9 +49,8 @@ MainWindow::MainWindow(QWidget *parent) :
     //ui->imageLabel->installEventFilter(this);
     qApp->installEventFilter(this);
 
-    //currentlyOpenedDir="/home/nattaon/ply/aligned-beike/histograme";
-    //currentlyOpenedDir="/home/okuboali/nattaon_ws2/sceneNN_histograme/histograme";
-    currentlyOpenedDir = "/home/okuboali/awork_Dec2020/histograme_sceneNNv02";
+    //currentlyOpenedDir = "/home/nattaon/data_room_ply/sceneNN/0histograme_sceneNNv02/image_x01";
+    currentlyOpenedDir = "/home/nattaon/data_room_ply/stanford/0histograme_stanfordv02/image_00";
     //currentlyOpenedDir = "../labeltest"; // by calling a relative path like this, the labeling file failed to load..
     ui->foldername_lineEdit->setText(currentlyOpenedDir);
     ListImgInFolder();
@@ -88,6 +89,8 @@ void MainWindow::resizeEvent(QResizeEvent *e)
 
     ui->files_treeWidget->move(10,0);
     ui->files_treeWidget->resize(ui->files_treeWidget->width(),height_of_treewidget-30);
+    ui->files_treeWidget->resizeColumnToContents(0); // show horixontal scrollbar
+
 
     ui->widget_tools->move(10,ui->files_treeWidget->geometry().bottom());
 
@@ -1709,12 +1712,25 @@ void MainWindow::on_actionPadd_All_lebel_in_folder_triggered()
 void MainWindow::on_actionRead_me_triggered()
 {
     QMessageBox msgbox;
-    QString txt = tr("When overlay a mouse on a line, the line will be automatically selected.\n"
-                     "When press ctrl, the previous selected line will keep.\n"
-                     "Then when the mouse overlay on the second line, you can press ctrl+c to join these 2 lines.\n\n"
-                     "When click on the image area, the mouse position will be keep,\n"
-                     "Then if you move a mouse, a temporary line will be drawn.\n"
-                     "If you click on the image again, a new line will be generated, and added to the line widget on the left.");//.arg(...);
+
+    QString txt = tr(" - Usage Guidelines - \n\n"
+                     "1. Draw a label: click anywhere on the image.\n"
+                     "    The label is automatically save in txt file.\n"
+                     "   - Press Esc-button to cancle the drawing stage.\n\n"
+                     "2. Select a line: hover a mouse over any line.\n"
+                     "    (or click on an item in the left side list).\n"
+                     "   - In a selection stage, the line color will change from red->yellow\n\n"
+                     "3. Select 2 lines:\n"
+                     "   a. select the first line\n"
+                     "   b. hold a ctrl-button\n"
+                     "   c. select the second line.\n"
+                     "   - You then can join 2 orthogonal lines at an intersection point,\n"
+                     "     by pressing 'connect lines' on the left side\n\n"
+                     "4. Menu->Label->Pad All Label:\n"
+                     "    to pad the image-label to gave a 32px dividable size.\n\n"
+                     "5. Menu->Label->Generate Label:\n"
+                     "    to create a black-white label images of the current folder.");
+
     msgbox.setText(txt);
     msgbox.exec();
 }

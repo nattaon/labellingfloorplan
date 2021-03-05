@@ -845,7 +845,7 @@
     <string>Next image</string>
    </property>
    <property name="shortcut">
-    <string>&gt;</string>
+    <string>Shift+S</string>
    </property>
   </action>
   <action name="actionPrev_image">
@@ -853,7 +853,7 @@
     <string>Prev image</string>
    </property>
    <property name="shortcut">
-    <string>&lt;</string>
+    <string>Shift+W</string>
    </property>
   </action>
   <action name="actionSee_shortcut">
